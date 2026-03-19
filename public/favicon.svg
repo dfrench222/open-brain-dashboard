@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00ffc8"/>
+      <stop offset="100%" style="stop-color:#a855f7"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="1" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="32" height="32" rx="8" fill="#0a0a0f"/>
+  <g filter="url(#glow)">
+    <path d="M16 4C12.5 4 9 6.5 9 10.5C9 12.5 9.5 13.5 10 14.5C10.5 15.5 11 16.5 11 18V19C11 19.6 11.4 20 12 20H20C20.6 20 21 19.6 21 19V18C21 16.5 21.5 15.5 22 14.5C22.5 13.5 23 12.5 23 10.5C23 6.5 19.5 4 16 4Z" fill="none" stroke="url(#g)" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M13 24H19" stroke="url(#g)" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M14 20V24" stroke="url(#g)" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M18 20V24" stroke="url(#g)" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="16" cy="11" r="2" fill="url(#g)" opacity="0.6"/>
+    <path d="M13 9L16 11L19 9" fill="none" stroke="url(#g)" stroke-width="1" opacity="0.4"/>
+  </g>
+</svg>
