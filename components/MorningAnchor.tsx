@@ -1,44 +1,35 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 
-const dailyQuotes = [
-  {
-    text: "The one thing every successful person uses, and every unsuccessful person does not use.",
-    source: "GuruKev Lessons",
-  },
-  {
-    text: "Your income is determined by the number of people you serve and how well you serve them.",
-    source: "Bob Burg",
-  },
-  {
-    text: "The map is not the territory. The menu is not the meal.",
-    source: "Rich Schefren",
-  },
-  {
-    text: "Speed of implementation is the #1 predictor of success.",
-    source: "KT Wisdom",
-  },
-  {
-    text: "You don't rise to the level of your goals. You fall to the level of your systems.",
-    source: "James Clear",
-  },
-  {
-    text: "The bottleneck is never the technology. It's always the thinking.",
-    source: "Rich Schefren",
-  },
-  {
-    text: "If you want to go fast, go alone. If you want to go far, go together.",
-    source: "African Proverb",
-  },
-];
+interface Quote {
+  quote_text: string;
+  source_title: string;
+  source_author: string;
+  category: string;
+}
+
+const fallbackQuote: Quote = {
+  quote_text:
+    "Whatever you want in life, give it away first.",
+  source_title: "Affirmations Of Truth",
+  source_author: "Kevin Trudeau",
+  category: "giving",
+};
 
 export default function MorningAnchor() {
-  // Rotate quote daily based on day of year
-  const dayOfYear = Math.floor(
-    (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000
-  );
-  const quote = dailyQuotes[dayOfYear % dailyQuotes.length];
+  const [quote, setQuote] = useState<Quote>(fallbackQuote);
+
+  useEffect(() => {
+    fetch("/api/quotes")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.quote_text) setQuote(data);
+      })
+      .catch(() => {
+        // Keep fallback
+      });
+  }, []);
 
   return (
     <section className="animate-fade-in-up relative px-6 py-8">
@@ -109,13 +100,13 @@ export default function MorningAnchor() {
               fontSize: "0.55rem",
             }}
           >
-            Daily Wisdom
+            Daily Wisdom &mdash; GuruKev Lessons
           </p>
           <blockquote
             className="text-base sm:text-lg italic max-w-2xl mx-auto"
             style={{ color: "var(--text-secondary)" }}
           >
-            &ldquo;{quote.text}&rdquo;
+            &ldquo;{quote.quote_text}&rdquo;
           </blockquote>
           <cite
             className="block mt-2 text-xs not-italic"
@@ -124,7 +115,10 @@ export default function MorningAnchor() {
               fontFamily: "'JetBrains Mono', monospace",
             }}
           >
-            &mdash; {quote.source}
+            &mdash; {quote.source_author}
+            {quote.source_title && (
+              <span style={{ opacity: 0.6 }}> / {quote.source_title}</span>
+            )}
           </cite>
         </div>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 interface Notification {
   id: string;
@@ -9,14 +9,20 @@ interface Notification {
   source: string;
 }
 
-const notifications: Notification[] = [
-  { id: "1", tier: 1, message: "Restitution payment due March 25", source: "Finance" },
-  { id: "2", tier: 1, message: "PG Q1 revenue review — schedule with Brixton", source: "Performance Golf" },
-  { id: "3", tier: 2, message: "Penny's spring break schedule — confirm dates with Araba", source: "Family" },
-  { id: "4", tier: 2, message: "De French 2.0 content calendar review", source: "Projects" },
-  { id: "5", tier: 3, message: "Update knowledge base distillation pipeline", source: "Second Brain" },
-  { id: "6", tier: 3, message: "Freedom Factor project kickoff planning", source: "Projects" },
-];
+interface ClickUpTask {
+  id: string;
+  name: string;
+  status: string;
+  due_date: string | null;
+  list: string;
+  assignees: { name: string }[];
+}
+
+interface NotionPage {
+  id: string;
+  title: string;
+  status?: string;
+}
 
 const tierConfig = {
   1: { color: "var(--neon-red)", bg: "rgba(239,68,68,0.08)", label: "NEEDS ATTENTION", icon: "!!" },
@@ -24,10 +30,104 @@ const tierConfig = {
   3: { color: "var(--text-muted)", bg: "rgba(71,85,105,0.06)", label: "WHEN FREE", icon: "~" },
 };
 
+function classifyClickUpTask(task: ClickUpTask): 1 | 2 | 3 {
+  const now = Date.now();
+  const due = task.due_date ? new Date(task.due_date).getTime() : null;
+
+  // Overdue or in progress = Tier 1
+  if (due && due < now) return 1;
+  if (task.status === "in progress") return 1;
+
+  // Due within 7 days = Tier 2
+  if (due && due < now + 7 * 86400000) return 2;
+  if (task.status === "ready") return 2;
+
+  // Everything else = Tier 3
+  return 3;
+}
+
+function classifyNotionPage(page: NotionPage): 1 | 2 | 3 {
+  if (page.status === "in-progress") return 1;
+  if (page.status === "pending") return 2;
+  return 3;
+}
+
+const fallbackNotifications: Notification[] = [
+  { id: "f1", tier: 1, message: "Restitution payment due March 25", source: "Finance" },
+  { id: "f2", tier: 1, message: "PG Q1 revenue review — schedule with Brixton", source: "Performance Golf" },
+  { id: "f3", tier: 2, message: "Penny spring break schedule — confirm dates with Araba", source: "Family" },
+  { id: "f4", tier: 2, message: "De French 2.0 content calendar review", source: "Projects" },
+  { id: "f5", tier: 3, message: "Update knowledge base distillation pipeline", source: "Second Brain" },
+  { id: "f6", tier: 3, message: "Freedom Factor project kickoff planning", source: "Projects" },
+];
+
 export default function NotificationBar() {
   const [expanded, setExpanded] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>(fallbackNotifications);
+
+  useEffect(() => {
+    const fetchAll = async () => {
+      const items: Notification[] = [];
+
+      // Fetch ClickUp tasks (PG)
+      try {
+        const cuRes = await fetch("/api/clickup");
+        const cuData = await cuRes.json();
+        if (cuData.tasks && cuData.tasks.length > 0) {
+          cuData.tasks
+            .filter((t: ClickUpTask) => t.status !== "hold for launch" && t.status !== "Closed")
+            .slice(0, 10)
+            .forEach((task: ClickUpTask) => {
+              items.push({
+                id: `cu-${task.id}`,
+                tier: classifyClickUpTask(task),
+                message: `${task.name}${task.list ? ` (${task.list})` : ""}`,
+                source: "ClickUp / PG",
+              });
+            });
+        }
+      } catch {
+        // ClickUp unavailable
+      }
+
+      // Fetch Notion pages (JL)
+      try {
+        const nRes = await fetch("/api/notion");
+        const nData = await nRes.json();
+        if (nData.pages && nData.pages.length > 0) {
+          nData.pages.slice(0, 6).forEach((page: NotionPage) => {
+            items.push({
+              id: `notion-${page.id}`,
+              tier: classifyNotionPage(page),
+              message: page.title,
+              source: "Notion / JL",
+            });
+          });
+        }
+      } catch {
+        // Notion unavailable
+      }
+
+      // Always include key standing items
+      items.push(
+        { id: "static-1", tier: 1, message: "Restitution payment due March 25", source: "Finance" },
+        { id: "static-2", tier: 2, message: "Penny spring break schedule — confirm dates with Araba", source: "Family" },
+      );
+
+      // Sort by tier then deduplicate
+      items.sort((a, b) => a.tier - b.tier);
+
+      if (items.length > 0) {
+        setNotifications(items);
+      }
+    };
+
+    fetchAll();
+  }, []);
+
   const tier1Count = notifications.filter((n) => n.tier === 1).length;
   const tier2Count = notifications.filter((n) => n.tier === 2).length;
+  const tier3Count = notifications.filter((n) => n.tier === 3).length;
 
   const visibleNotifications = expanded ? notifications : notifications.filter((n) => n.tier === 1);
 
@@ -58,6 +158,10 @@ export default function NotificationBar() {
               <span className="flex items-center gap-1.5 text-xs" style={{ color: "var(--neon-amber)" }}>
                 <span className="w-2 h-2 rounded-full" style={{ background: "var(--neon-amber)", boxShadow: "0 0 8px var(--neon-amber)" }} />
                 {tier2Count}
+              </span>
+              <span className="flex items-center gap-1.5 text-xs" style={{ color: "var(--text-muted)" }}>
+                <span className="w-2 h-2 rounded-full" style={{ background: "var(--text-muted)" }} />
+                {tier3Count}
               </span>
             </div>
           </div>

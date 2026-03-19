@@ -1,19 +1,57 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import GlassCard from "../ui/GlassCard";
 import NeonText from "../ui/NeonText";
 import StatusBadge from "../ui/StatusBadge";
 
-const projects = [
-  { name: "Performance Golf", description: "Direct response golf company — $164M target", status: "active" as const },
-  { name: "De French 2.0", description: "Personal brand content & thought leadership", status: "active" as const },
-  { name: "Open Brain", description: "Life Operating System dashboard", status: "building" as const },
-  { name: "Perfect Pitch Publishing", description: "Publishing venture", status: "active" as const },
-  { name: "Freedom Factor", description: "New venture — planning phase", status: "planning" as const },
+interface Project {
+  id: string;
+  name: string;
+  description: string;
+  status: "active" | "paused" | "completed" | "archived";
+  priority: "critical" | "high" | "medium" | "low";
+  workspace: string;
+  owner: string;
+}
+
+const priorityColors: Record<string, string> = {
+  critical: "var(--neon-red, #ef4444)",
+  high: "var(--neon-amber)",
+  medium: "var(--neon-cyan)",
+  low: "var(--text-muted)",
+};
+
+// Map DB status values to StatusBadge values
+function mapStatus(status: string): "active" | "planning" | "building" | "paused" | "completed" {
+  if (status === "active") return "active";
+  if (status === "paused") return "paused";
+  if (status === "completed") return "completed";
+  return "active";
+}
+
+const fallbackProjects: Project[] = [
+  { id: "1", name: "Performance Golf", description: "Direct response golf company — $164M target", status: "active", priority: "critical", workspace: "performance-golf", owner: "Don French" },
+  { id: "2", name: "Open Brain", description: "Life Operating System dashboard", status: "active", priority: "critical", workspace: "shared", owner: "Don French" },
+  { id: "3", name: "De French 2.0", description: "Personal brand, speaking, consulting", status: "active", priority: "high", workspace: "jumm-life", owner: "Don French" },
+  { id: "4", name: "Perfect Pitch Publishing", description: "Publishing venture", status: "active", priority: "medium", workspace: "jumm-life", owner: "Don French" },
+  { id: "5", name: "Freedom Factor", description: "Prison reform initiative", status: "paused", priority: "medium", workspace: "jumm-life", owner: "Don French" },
 ];
 
 export default function ActiveProjects() {
+  const [projects, setProjects] = useState<Project[]>(fallbackProjects);
+
+  useEffect(() => {
+    fetch("/api/projects")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) setProjects(data);
+      })
+      .catch(() => {
+        // Keep fallback
+      });
+  }, []);
+
   return (
     <GlassCard delay={500}>
       <div className="flex items-center gap-3 mb-5">
@@ -46,7 +84,7 @@ export default function ActiveProjects() {
       <div className="space-y-2">
         {projects.map((project) => (
           <div
-            key={project.name}
+            key={project.id}
             className="p-3 rounded-lg transition-all duration-200 cursor-pointer"
             style={{
               background: "rgba(255,255,255,0.02)",
@@ -55,14 +93,26 @@ export default function ActiveProjects() {
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <span className="text-sm font-medium block" style={{ color: "var(--text-primary)" }}>
-                  {project.name}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                    {project.name}
+                  </span>
+                  {project.priority && (
+                    <span
+                      className="w-2 h-2 rounded-full shrink-0"
+                      style={{
+                        background: priorityColors[project.priority] || "var(--text-muted)",
+                        boxShadow: project.priority === "critical" ? `0 0 6px ${priorityColors[project.priority]}` : "none",
+                      }}
+                      title={`${project.priority} priority`}
+                    />
+                  )}
+                </div>
                 <span className="text-xs block mt-0.5" style={{ color: "var(--text-muted)" }}>
                   {project.description}
                 </span>
               </div>
-              <StatusBadge status={project.status} />
+              <StatusBadge status={mapStatus(project.status)} />
             </div>
           </div>
         ))}
