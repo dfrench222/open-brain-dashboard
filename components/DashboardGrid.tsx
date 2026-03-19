@@ -21,7 +21,7 @@ export default function DashboardGrid() {
   return (
     <div className="max-w-[1600px] mx-auto">
       {/* COMMUNICATIONS Section */}
-      <section className="mb-12 md:mb-16">
+      <section className="mb-14 md:mb-20">
         <SectionLabel label="Communications" color="var(--neon-blue)" />
         <div className="grid grid-cols-1 gap-6 md:gap-8">
           <Communications />
@@ -29,18 +29,18 @@ export default function DashboardGrid() {
       </section>
 
       {/* OPERATIONS Section */}
-      <section className="mb-12 md:mb-16">
+      <section className="mb-14 md:mb-20">
         <SectionLabel label="Operations" color="var(--neon-cyan)" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
           <FinancialOverview />
           <PGCommandCenter />
         </div>
       </section>
 
       {/* PERSONAL Section */}
-      <section className="mb-12 md:mb-16">
+      <section className="mb-14 md:mb-20">
         <SectionLabel label="Personal" color="var(--neon-purple)" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
           <PersonalLife />
           <PeopleCRM />
         </div>
@@ -49,7 +49,7 @@ export default function DashboardGrid() {
       {/* SYSTEM Section */}
       <section className="mb-8">
         <SectionLabel label="System" color="var(--neon-green)" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
           <ActiveProjects />
           <AIActivity />
         </div>

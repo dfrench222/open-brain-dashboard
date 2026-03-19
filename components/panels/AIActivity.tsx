@@ -21,7 +21,7 @@ const syncs = [
 export default function AIActivity() {
   return (
     <GlassCard delay={700}>
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex items-center gap-3 mb-8">
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
           style={{ background: "rgba(0,255,200,0.1)", border: "1px solid rgba(0,255,200,0.2)" }}
@@ -51,15 +51,15 @@ export default function AIActivity() {
       </div>
 
       {/* Stats grid */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-2 gap-4 mb-8">
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className="p-4 rounded-xl text-center"
+            className="p-5 rounded-xl text-center"
             style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--glass-border)" }}
           >
             <span
-              className="text-xl font-bold block"
+              className="text-2xl font-bold block mb-1"
               style={{
                 color: stat.color,
                 fontFamily: "'JetBrains Mono', monospace",
@@ -69,8 +69,8 @@ export default function AIActivity() {
               {stat.value}
             </span>
             <span
-              className="text-xs mt-1 block"
-              style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.55rem" }}
+              className="text-xs mt-2 block"
+              style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem" }}
             >
               {stat.label}
             </span>
@@ -79,33 +79,33 @@ export default function AIActivity() {
       </div>
 
       {/* Sync status */}
-      <div>
+      <div className="mt-6">
         <span
-          className="text-xs uppercase tracking-wider block mb-3"
+          className="text-xs uppercase tracking-wider block mb-4"
           style={{ color: "var(--text-muted)", fontFamily: "'Orbitron', sans-serif", fontSize: "0.6rem" }}
         >
           Last Sync Times
         </span>
-        <div className="space-y-2.5">
+        <div className="space-y-3">
           {syncs.map((sync) => (
             <div
               key={sync.name}
-              className="flex items-center justify-between p-3 rounded-xl"
-              style={{ background: "rgba(255,255,255,0.015)" }}
+              className="flex items-center justify-between p-4 rounded-xl"
+              style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--glass-border)" }}
             >
-              <span className="text-xs" style={{ color: "var(--text-secondary)" }}>
+              <span className="text-sm" style={{ color: "var(--text-secondary)" }}>
                 {sync.name}
               </span>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <span
                   className="text-xs"
-                  style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem" }}
+                  style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.65rem" }}
                 >
                   {sync.time}
                 </span>
                 <span
-                  className="w-1.5 h-1.5 rounded-full"
-                  style={{ background: "var(--neon-green)", boxShadow: "0 0 4px var(--neon-green)" }}
+                  className="w-2 h-2 rounded-full"
+                  style={{ background: "var(--neon-green)", boxShadow: "0 0 6px var(--neon-green)" }}
                 />
               </div>
             </div>

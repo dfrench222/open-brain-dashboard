@@ -62,7 +62,7 @@ export default function PeopleCRM() {
 
   return (
     <GlassCard delay={600}>
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex items-center gap-3 mb-8">
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
           style={{ background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.2)" }}
@@ -90,20 +90,20 @@ export default function PeopleCRM() {
         </span>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         {people.map((person) => {
           const color = relationshipColors[person.relationship] || "var(--neon-cyan)";
           return (
             <div
               key={person.id}
-              className="flex items-center gap-4 p-4 rounded-xl transition-all duration-200 cursor-pointer"
+              className="flex items-center gap-4 p-5 rounded-xl transition-all duration-200 cursor-pointer"
               style={{
                 background: "rgba(255,255,255,0.02)",
                 border: "1px solid var(--glass-border)",
               }}
             >
               <div
-                className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
                 style={{
                   background: `${color}15`,
                   color: color,
@@ -118,7 +118,7 @@ export default function PeopleCRM() {
                 <span className="text-sm font-medium block" style={{ color: "var(--text-primary)" }}>
                   {person.name}
                 </span>
-                <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+                <span className="text-xs block mt-1" style={{ color: "var(--text-muted)" }}>
                   {person.role}
                   {person.location && ` — ${person.location}`}
                 </span>
@@ -126,14 +126,14 @@ export default function PeopleCRM() {
               <div className="text-right shrink-0">
                 <span
                   className="text-xs block"
-                  style={{ color: color, fontFamily: "'JetBrains Mono', monospace", fontSize: "0.55rem" }}
+                  style={{ color: color, fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem" }}
                 >
                   {formatRelationship(person.relationship)}
                 </span>
                 {person.interaction_count > 0 && (
                   <span
-                    className="text-xs block mt-0.5"
-                    style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.5rem" }}
+                    className="text-xs block mt-1"
+                    style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.55rem" }}
                   >
                     {person.interaction_count.toLocaleString()} msgs
                   </span>

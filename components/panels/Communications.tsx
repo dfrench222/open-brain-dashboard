@@ -52,7 +52,7 @@ export default function Communications() {
 
   return (
     <GlassCard delay={350}>
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex items-center gap-3 mb-8">
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
           style={{ background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)" }}
@@ -77,51 +77,54 @@ export default function Communications() {
         </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+      <div className="relative grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
         {/* JUMM LIFE Column */}
         <div>
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2.5 mb-5 pb-3" style={{ borderBottom: "1px solid rgba(0,255,200,0.1)" }}>
             <span
-              className="w-2 h-2 rounded-full"
+              className="w-2.5 h-2.5 rounded-full"
               style={{ background: "var(--neon-cyan)", boxShadow: "0 0 6px var(--neon-cyan)" }}
             />
             <span
               className="text-xs uppercase tracking-wider"
-              style={{ color: "var(--neon-cyan)", fontFamily: "'Orbitron', sans-serif", fontSize: "0.55rem" }}
+              style={{ color: "var(--neon-cyan)", fontFamily: "'Orbitron', sans-serif", fontSize: "0.6rem" }}
             >
               Jumm Life
             </span>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {jlMessages.map((msg) => (
               <MessageRow key={msg.id} msg={msg} />
             ))}
             {jlMessages.length === 0 && (
-              <p className="text-xs" style={{ color: "var(--text-muted)" }}>Loading...</p>
+              <p className="text-xs py-4" style={{ color: "var(--text-muted)" }}>Loading...</p>
             )}
           </div>
         </div>
 
+        {/* Column Divider (visible on desktop) */}
+        <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px" style={{ background: "var(--glass-border)" }} />
+
         {/* PERFORMANCE GOLF Column */}
         <div>
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2.5 mb-5 pb-3" style={{ borderBottom: "1px solid rgba(245,158,11,0.1)" }}>
             <span
-              className="w-2 h-2 rounded-full"
+              className="w-2.5 h-2.5 rounded-full"
               style={{ background: "var(--neon-amber)", boxShadow: "0 0 6px var(--neon-amber)" }}
             />
             <span
               className="text-xs uppercase tracking-wider"
-              style={{ color: "var(--neon-amber)", fontFamily: "'Orbitron', sans-serif", fontSize: "0.55rem" }}
+              style={{ color: "var(--neon-amber)", fontFamily: "'Orbitron', sans-serif", fontSize: "0.6rem" }}
             >
               Performance Golf
             </span>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {pgMessages.map((msg) => (
               <MessageRow key={msg.id} msg={msg} />
             ))}
             {pgMessages.length === 0 && (
-              <p className="text-xs" style={{ color: "var(--text-muted)" }}>Loading...</p>
+              <p className="text-xs py-4" style={{ color: "var(--text-muted)" }}>Loading...</p>
             )}
           </div>
         </div>
@@ -133,7 +136,7 @@ export default function Communications() {
 function MessageRow({ msg }: { msg: SlackMessage }) {
   return (
     <div
-      className="p-3.5 rounded-xl transition-all duration-200"
+      className="px-4 py-4 rounded-xl transition-all duration-200"
       style={{
         background: "rgba(255,255,255,0.02)",
         borderLeft: `2px solid ${tierColors[msg.tier] || "var(--glass-border)"}`,
@@ -142,27 +145,27 @@ function MessageRow({ msg }: { msg: SlackMessage }) {
         borderBottom: "1px solid var(--glass-border)",
       }}
     >
-      <div className="flex items-center justify-between mb-1">
+      <div className="flex items-center justify-between mb-2.5">
         <span
           className="text-xs font-medium"
-          style={{ color: "var(--text-secondary)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem" }}
+          style={{ color: "var(--text-secondary)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.65rem" }}
         >
           {msg.channel}
         </span>
         <span
-          className="text-xs"
-          style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.55rem" }}
+          className="text-xs shrink-0 ml-2"
+          style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem", whiteSpace: "nowrap" }}
         >
           {timeAgo(msg.timestamp)}
         </span>
       </div>
-      <div className="flex items-start gap-1.5">
-        <span className="text-xs font-medium shrink-0" style={{ color: "var(--text-primary)" }}>
+      <div className="flex items-start gap-2">
+        <span className="text-sm font-medium shrink-0" style={{ color: "var(--text-primary)" }}>
           {msg.sender}:
         </span>
         <span
-          className="text-xs line-clamp-2"
-          style={{ color: "var(--text-muted)", lineHeight: "1.4" }}
+          className="text-sm line-clamp-2"
+          style={{ color: "var(--text-muted)", lineHeight: "1.5" }}
         >
           {msg.preview}
         </span>

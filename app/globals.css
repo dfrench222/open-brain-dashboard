@@ -221,6 +221,18 @@ body::after {
   transform: translateY(-2px);
 }
 
+/* Center the page */
+main {
+  max-width: 1600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Better list item spacing globally */
+.space-items > * + * {
+  margin-top: 0.75rem;
+}
+
 /* Neon progress bar */
 .neon-progress {
   position: relative;

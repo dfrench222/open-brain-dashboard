@@ -178,40 +178,42 @@ export default function NotificationBar() {
 
         {/* Notification items */}
         {visibleNotifications.length > 0 && (
-          <div className="mt-3 space-y-2">
+          <div className="mt-4 space-y-3">
             {visibleNotifications.map((notification, i) => {
               const config = tierConfig[notification.tier];
               return (
                 <div
                   key={notification.id}
-                  className="flex items-center gap-3 px-5 py-3 rounded-xl transition-all duration-200 animate-slide-in-left"
+                  className="flex items-center gap-4 px-5 py-4 rounded-xl transition-all duration-200 animate-slide-in-left"
                   style={{
                     background: config.bg,
                     border: `1px solid ${config.color}15`,
+                    borderBottom: `1px solid ${config.color}25`,
                     animationDelay: `${i * 50}ms`,
                     opacity: 0,
                   }}
                 >
                   <span
-                    className="w-5 h-5 rounded flex items-center justify-center text-xs font-bold shrink-0"
+                    className="w-6 h-6 rounded flex items-center justify-center text-xs font-bold shrink-0 mr-1"
                     style={{
                       color: config.color,
                       background: `${config.color}15`,
                       fontFamily: "'JetBrains Mono', monospace",
-                      fontSize: "0.6rem",
+                      fontSize: "0.65rem",
                     }}
                   >
                     {config.icon}
                   </span>
-                  <span className="text-sm flex-1" style={{ color: "var(--text-primary)" }}>
+                  <span className="text-sm flex-1 min-w-0" style={{ color: "var(--text-primary)" }}>
                     {notification.message}
                   </span>
                   <span
-                    className="text-xs shrink-0"
+                    className="text-xs shrink-0 ml-3"
                     style={{
                       color: "var(--text-muted)",
                       fontFamily: "'JetBrains Mono', monospace",
                       fontSize: "0.6rem",
+                      whiteSpace: "nowrap",
                     }}
                   >
                     {notification.source}

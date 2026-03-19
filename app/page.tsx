@@ -14,7 +14,7 @@ export default function Home() {
   return (
     <div className="relative min-h-screen" style={{ zIndex: 1 }}>
       <Header context={context} onContextChange={setContext} />
-      <main className="pb-16 px-4 md:px-10 lg:px-16">
+      <main className="max-w-[1600px] mx-auto pb-16 px-6 md:px-10 lg:px-16">
         <div className="mb-10 md:mb-14">
           <MorningAnchor />
         </div>
