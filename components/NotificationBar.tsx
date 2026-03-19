@@ -132,21 +132,21 @@ export default function NotificationBar() {
   const visibleNotifications = expanded ? notifications : notifications.filter((n) => n.tier === 1);
 
   return (
-    <div className="px-6 animate-fade-in-up" style={{ animationDelay: "150ms", opacity: 0 }}>
+    <div className="animate-fade-in-up" style={{ animationDelay: "150ms", opacity: 0 }}>
       <div className="max-w-[1600px] mx-auto">
         {/* Summary bar */}
         <button
           onClick={() => setExpanded(!expanded)}
-          className="w-full flex items-center justify-between p-3 rounded-xl transition-all duration-200 cursor-pointer"
+          className="w-full flex items-center justify-between p-4 md:p-5 rounded-2xl transition-all duration-200 cursor-pointer"
           style={{
-            background: "rgba(17,17,24,0.6)",
-            border: "1px solid var(--glass-border)",
+            background: "rgba(17,17,24,0.7)",
+            border: "1px solid rgba(255,255,255,0.08)",
           }}
         >
           <div className="flex items-center gap-4">
             <span
-              className="text-xs uppercase tracking-[0.2em] font-medium"
-              style={{ fontFamily: "'Orbitron', sans-serif", color: "var(--text-muted)", fontSize: "0.6rem" }}
+              className="text-xs uppercase tracking-[0.2em] font-semibold"
+              style={{ fontFamily: "'Orbitron', sans-serif", color: "var(--text-secondary)", fontSize: "0.7rem" }}
             >
               Ivy Lee Queue
             </span>
@@ -178,13 +178,13 @@ export default function NotificationBar() {
 
         {/* Notification items */}
         {visibleNotifications.length > 0 && (
-          <div className="mt-2 space-y-1.5">
+          <div className="mt-3 space-y-2">
             {visibleNotifications.map((notification, i) => {
               const config = tierConfig[notification.tier];
               return (
                 <div
                   key={notification.id}
-                  className="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 animate-slide-in-left"
+                  className="flex items-center gap-3 px-5 py-3 rounded-xl transition-all duration-200 animate-slide-in-left"
                   style={{
                     background: config.bg,
                     border: `1px solid ${config.color}15`,

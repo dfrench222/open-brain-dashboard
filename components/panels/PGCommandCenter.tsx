@@ -17,7 +17,7 @@ export default function PGCommandCenter() {
 
   return (
     <GlassCard delay={300}>
-      <div className="flex items-center gap-3 mb-5">
+      <div className="flex items-center gap-3 mb-6">
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
           style={{ background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)" }}
@@ -32,7 +32,7 @@ export default function PGCommandCenter() {
       </div>
 
       {/* Revenue target */}
-      <div className="mb-5">
+      <div className="mb-6">
         <div className="flex items-baseline justify-between mb-1">
           <span className="text-xs" style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem" }}>
             2026 REVENUE TARGET
@@ -55,7 +55,7 @@ export default function PGCommandCenter() {
 
       {/* Active launches */}
       <div
-        className="p-3 rounded-lg mb-4"
+        className="p-4 rounded-xl mb-5"
         style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--glass-border)" }}
       >
         <div className="flex items-center justify-between mb-3">
@@ -79,7 +79,7 @@ export default function PGCommandCenter() {
         >
           Launch Calendar
         </span>
-        <div className="space-y-2">
+        <div className="space-y-3">
           {launches.map((launch) => {
             const statusColor =
               launch.status === "live"

@@ -13,9 +13,9 @@ interface NeonTextProps {
 
 const sizeClasses = {
   sm: "text-xs tracking-wider",
-  md: "text-sm tracking-wider",
-  lg: "text-lg tracking-wide",
-  xl: "text-2xl tracking-wide",
+  md: "text-base tracking-wider",
+  lg: "text-xl tracking-wide",
+  xl: "text-3xl tracking-wide",
   "2xl": "text-4xl tracking-wide",
 };
 

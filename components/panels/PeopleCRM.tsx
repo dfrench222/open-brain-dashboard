@@ -62,7 +62,7 @@ export default function PeopleCRM() {
 
   return (
     <GlassCard delay={600}>
-      <div className="flex items-center gap-3 mb-5">
+      <div className="flex items-center gap-3 mb-6">
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
           style={{ background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.2)" }}
@@ -90,13 +90,13 @@ export default function PeopleCRM() {
         </span>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-3">
         {people.map((person) => {
           const color = relationshipColors[person.relationship] || "var(--neon-cyan)";
           return (
             <div
               key={person.id}
-              className="flex items-center gap-3 p-3 rounded-lg transition-all duration-200 cursor-pointer"
+              className="flex items-center gap-4 p-4 rounded-xl transition-all duration-200 cursor-pointer"
               style={{
                 background: "rgba(255,255,255,0.02)",
                 border: "1px solid var(--glass-border)",

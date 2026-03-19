@@ -21,7 +21,7 @@ const syncs = [
 export default function AIActivity() {
   return (
     <GlassCard delay={700}>
-      <div className="flex items-center gap-3 mb-5">
+      <div className="flex items-center gap-3 mb-6">
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
           style={{ background: "rgba(0,255,200,0.1)", border: "1px solid rgba(0,255,200,0.2)" }}
@@ -51,11 +51,11 @@ export default function AIActivity() {
       </div>
 
       {/* Stats grid */}
-      <div className="grid grid-cols-2 gap-3 mb-5">
+      <div className="grid grid-cols-2 gap-4 mb-6">
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className="p-3 rounded-lg text-center"
+            className="p-4 rounded-xl text-center"
             style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--glass-border)" }}
           >
             <span
@@ -86,11 +86,11 @@ export default function AIActivity() {
         >
           Last Sync Times
         </span>
-        <div className="space-y-1.5">
+        <div className="space-y-2.5">
           {syncs.map((sync) => (
             <div
               key={sync.name}
-              className="flex items-center justify-between p-2 rounded-lg"
+              className="flex items-center justify-between p-3 rounded-xl"
               style={{ background: "rgba(255,255,255,0.015)" }}
             >
               <span className="text-xs" style={{ color: "var(--text-secondary)" }}>

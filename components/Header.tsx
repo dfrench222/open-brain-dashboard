@@ -48,7 +48,7 @@ export default function Header({ context, onContextChange }: HeaderProps) {
 
   return (
     <header
-      className="sticky top-0 z-50 px-6 py-4"
+      className="sticky top-0 z-50 px-6 md:px-10 lg:px-16 py-5"
       style={{
         background: "linear-gradient(180deg, rgba(10,10,15,0.98) 0%, rgba(10,10,15,0.9) 100%)",
         backdropFilter: "blur(20px)",
@@ -100,26 +100,26 @@ export default function Header({ context, onContextChange }: HeaderProps) {
 
         {/* Context Switcher — Desktop */}
         <div
-          className="hidden md:flex items-center gap-1 p-1 rounded-xl"
+          className="hidden md:flex items-center gap-1.5 p-1.5 rounded-2xl"
           style={{
-            background: "rgba(255,255,255,0.03)",
-            border: "1px solid var(--glass-border)",
+            background: "rgba(255,255,255,0.04)",
+            border: "1px solid rgba(255,255,255,0.08)",
           }}
         >
           {contexts.map((ctx) => (
             <button
               key={ctx.key}
               onClick={() => onContextChange(ctx.key)}
-              className="px-4 py-2 rounded-lg text-xs uppercase tracking-wider font-medium transition-all duration-200"
+              className="px-6 py-2.5 rounded-xl text-sm uppercase tracking-wider font-semibold transition-all duration-200"
               style={{
                 fontFamily: "'Orbitron', sans-serif",
-                fontSize: "0.65rem",
+                fontSize: "0.75rem",
                 color: context === ctx.key ? "var(--bg-primary)" : "var(--text-secondary)",
                 background:
                   context === ctx.key
                     ? "linear-gradient(135deg, var(--neon-cyan), rgba(0,255,200,0.8))"
                     : "transparent",
-                boxShadow: context === ctx.key ? "0 0 15px rgba(0,255,200,0.3)" : "none",
+                boxShadow: context === ctx.key ? "0 0 20px rgba(0,255,200,0.35), 0 0 40px rgba(0,255,200,0.1)" : "none",
               }}
             >
               {ctx.label}

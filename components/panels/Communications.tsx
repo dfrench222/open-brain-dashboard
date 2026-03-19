@@ -51,8 +51,8 @@ export default function Communications() {
   }, []);
 
   return (
-    <GlassCard delay={350} className="xl:col-span-2">
-      <div className="flex items-center gap-3 mb-5">
+    <GlassCard delay={350}>
+      <div className="flex items-center gap-3 mb-6">
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
           style={{ background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)" }}
@@ -77,7 +77,7 @@ export default function Communications() {
         </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
         {/* JUMM LIFE Column */}
         <div>
           <div className="flex items-center gap-2 mb-3">
@@ -92,7 +92,7 @@ export default function Communications() {
               Jumm Life
             </span>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {jlMessages.map((msg) => (
               <MessageRow key={msg.id} msg={msg} />
             ))}
@@ -116,7 +116,7 @@ export default function Communications() {
               Performance Golf
             </span>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {pgMessages.map((msg) => (
               <MessageRow key={msg.id} msg={msg} />
             ))}
@@ -133,7 +133,7 @@ export default function Communications() {
 function MessageRow({ msg }: { msg: SlackMessage }) {
   return (
     <div
-      className="p-2.5 rounded-lg transition-all duration-200"
+      className="p-3.5 rounded-xl transition-all duration-200"
       style={{
         background: "rgba(255,255,255,0.02)",
         borderLeft: `2px solid ${tierColors[msg.tier] || "var(--glass-border)"}`,

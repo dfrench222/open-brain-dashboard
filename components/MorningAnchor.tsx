@@ -32,9 +32,9 @@ export default function MorningAnchor() {
   }, []);
 
   return (
-    <section className="animate-fade-in-up relative px-6 py-8">
+    <section className="animate-fade-in-up relative pt-10 md:pt-14 pb-2">
       <div
-        className="max-w-[1600px] mx-auto rounded-2xl p-8 relative overflow-hidden"
+        className="max-w-[1600px] mx-auto rounded-2xl p-8 md:p-12 relative overflow-hidden"
         style={{
           background: "linear-gradient(135deg, rgba(0,255,200,0.03) 0%, rgba(168,85,247,0.03) 50%, rgba(0,255,200,0.03) 100%)",
           border: "1px solid rgba(0,255,200,0.1)",
@@ -61,19 +61,19 @@ export default function MorningAnchor() {
         />
 
         {/* North Star */}
-        <div className="text-center mb-6">
+        <div className="text-center mb-8 md:mb-10">
           <p
-            className="text-xs uppercase tracking-[0.3em] mb-4"
+            className="text-xs uppercase tracking-[0.3em] mb-5"
             style={{
               color: "var(--text-muted)",
               fontFamily: "'Orbitron', sans-serif",
-              fontSize: "0.6rem",
+              fontSize: "0.65rem",
             }}
           >
             North Star Principle
           </p>
           <h2
-            className="north-star-text text-2xl sm:text-3xl md:text-4xl font-bold leading-tight"
+            className="north-star-text text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight"
             style={{ fontFamily: "'Orbitron', sans-serif" }}
           >
             &ldquo;Whatever you want in life &mdash; give it away first.&rdquo;
@@ -81,7 +81,7 @@ export default function MorningAnchor() {
         </div>
 
         {/* Divider */}
-        <div className="flex items-center justify-center gap-4 my-6">
+        <div className="flex items-center justify-center gap-4 my-8 md:my-10">
           <div className="h-px flex-1 max-w-[100px]" style={{ background: "linear-gradient(90deg, transparent, var(--neon-cyan))" }} />
           <div
             className="w-2 h-2 rotate-45"
@@ -93,23 +93,23 @@ export default function MorningAnchor() {
         {/* Daily Quote */}
         <div className="text-center">
           <p
-            className="text-xs uppercase tracking-[0.3em] mb-3"
+            className="text-xs uppercase tracking-[0.3em] mb-4"
             style={{
               color: "var(--text-muted)",
               fontFamily: "'Orbitron', sans-serif",
-              fontSize: "0.55rem",
+              fontSize: "0.6rem",
             }}
           >
             Daily Wisdom &mdash; GuruKev Lessons
           </p>
           <blockquote
-            className="text-base sm:text-lg italic max-w-2xl mx-auto"
-            style={{ color: "var(--text-secondary)" }}
+            className="text-lg sm:text-xl italic max-w-2xl mx-auto leading-relaxed"
+            style={{ color: "var(--text-secondary)", lineHeight: "1.7" }}
           >
             &ldquo;{quote.quote_text}&rdquo;
           </blockquote>
           <cite
-            className="block mt-2 text-xs not-italic"
+            className="block mt-3 text-sm not-italic"
             style={{
               color: "var(--text-muted)",
               fontFamily: "'JetBrains Mono', monospace",

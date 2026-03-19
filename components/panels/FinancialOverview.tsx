@@ -19,7 +19,7 @@ function MetricCard({ label, value, subtext, color, trend }: MetricCardProps) {
 
   return (
     <div
-      className="p-4 rounded-xl transition-all duration-200"
+      className="p-5 rounded-xl transition-all duration-200"
       style={{
         background: "rgba(255,255,255,0.02)",
         border: "1px solid var(--glass-border)",
@@ -60,7 +60,7 @@ function MetricCard({ label, value, subtext, color, trend }: MetricCardProps) {
 export default function FinancialOverview() {
   return (
     <GlassCard delay={200}>
-      <div className="flex items-center gap-3 mb-5">
+      <div className="flex items-center gap-3 mb-6">
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
           style={{ background: "rgba(0,255,200,0.1)", border: "1px solid rgba(0,255,200,0.2)" }}
@@ -75,7 +75,7 @@ export default function FinancialOverview() {
         </NeonText>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-4">
         <MetricCard
           label="Monthly Income"
           value="$112K"
@@ -108,7 +108,7 @@ export default function FinancialOverview() {
 
       {/* Net trend */}
       <div
-        className="mt-4 p-3 rounded-lg flex items-center justify-between"
+        className="mt-5 p-4 rounded-xl flex items-center justify-between"
         style={{
           background: "rgba(34,197,94,0.05)",
           border: "1px solid rgba(34,197,94,0.1)",

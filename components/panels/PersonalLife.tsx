@@ -13,7 +13,7 @@ const events = [
 export default function PersonalLife() {
   return (
     <GlassCard delay={400}>
-      <div className="flex items-center gap-3 mb-5">
+      <div className="flex items-center gap-3 mb-6">
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
           style={{ background: "rgba(168,85,247,0.1)", border: "1px solid rgba(168,85,247,0.2)" }}
@@ -28,7 +28,7 @@ export default function PersonalLife() {
       </div>
 
       {/* Key people */}
-      <div className="space-y-3 mb-5">
+      <div className="space-y-3 mb-6">
         {/* Penny */}
         <div
           className="p-3 rounded-lg"
@@ -81,7 +81,7 @@ export default function PersonalLife() {
 
       {/* Health metrics placeholder */}
       <div
-        className="p-3 rounded-lg mb-5"
+        className="p-4 rounded-xl mb-6"
         style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--glass-border)" }}
       >
         <span
@@ -129,11 +129,11 @@ export default function PersonalLife() {
         >
           Upcoming
         </span>
-        <div className="space-y-2">
+        <div className="space-y-3">
           {events.map((event) => (
             <div
               key={event.name}
-              className="flex items-center justify-between p-2.5 rounded-lg"
+              className="flex items-center justify-between p-3 rounded-xl"
               style={{ background: "rgba(255,255,255,0.02)" }}
             >
               <span className="text-sm" style={{ color: "var(--text-primary)" }}>

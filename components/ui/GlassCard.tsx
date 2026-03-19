@@ -17,7 +17,7 @@ export default function GlassCard({
 }: GlassCardProps) {
   return (
     <div
-      className={`glass-card animate-fade-in-up p-6 ${className}`}
+      className={`glass-card animate-fade-in-up p-6 md:p-8 ${className}`}
       style={{
         animationDelay: `${delay}ms`,
         opacity: 0,

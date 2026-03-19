@@ -9,21 +9,51 @@ import ActiveProjects from "./panels/ActiveProjects";
 import PeopleCRM from "./panels/PeopleCRM";
 import AIActivity from "./panels/AIActivity";
 
+function SectionLabel({ label, color }: { label: string; color: string }) {
+  return (
+    <div className="section-label">
+      <span style={{ color }}>{label}</span>
+    </div>
+  );
+}
+
 export default function DashboardGrid() {
   return (
-    <section className="px-6 py-6">
-      <div className="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-        {/* Communications spans 2 columns on xl for prominence */}
-        <div className="xl:col-span-2">
+    <div className="max-w-[1600px] mx-auto">
+      {/* COMMUNICATIONS Section */}
+      <section className="mb-12 md:mb-16">
+        <SectionLabel label="Communications" color="var(--neon-blue)" />
+        <div className="grid grid-cols-1 gap-6 md:gap-8">
           <Communications />
         </div>
-        <PGCommandCenter />
-        <FinancialOverview />
-        <PersonalLife />
-        <ActiveProjects />
-        <PeopleCRM />
-        <AIActivity />
-      </div>
-    </section>
+      </section>
+
+      {/* OPERATIONS Section */}
+      <section className="mb-12 md:mb-16">
+        <SectionLabel label="Operations" color="var(--neon-cyan)" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+          <FinancialOverview />
+          <PGCommandCenter />
+        </div>
+      </section>
+
+      {/* PERSONAL Section */}
+      <section className="mb-12 md:mb-16">
+        <SectionLabel label="Personal" color="var(--neon-purple)" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+          <PersonalLife />
+          <PeopleCRM />
+        </div>
+      </section>
+
+      {/* SYSTEM Section */}
+      <section className="mb-8">
+        <SectionLabel label="System" color="var(--neon-green)" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+          <ActiveProjects />
+          <AIActivity />
+        </div>
+      </section>
+    </div>
   );
 }

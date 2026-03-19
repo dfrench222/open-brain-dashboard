@@ -54,7 +54,7 @@ export default function ActiveProjects() {
 
   return (
     <GlassCard delay={500}>
-      <div className="flex items-center gap-3 mb-5">
+      <div className="flex items-center gap-3 mb-6">
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
           style={{ background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.2)" }}
@@ -81,11 +81,11 @@ export default function ActiveProjects() {
         </span>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-3">
         {projects.map((project) => (
           <div
             key={project.id}
-            className="p-3 rounded-lg transition-all duration-200 cursor-pointer"
+            className="p-4 rounded-xl transition-all duration-200 cursor-pointer"
             style={{
               background: "rgba(255,255,255,0.02)",
               border: "1px solid var(--glass-border)",
