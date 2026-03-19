@@ -54,18 +54,6 @@ function isTomorrow(isoStr: string): boolean {
   );
 }
 
-function daysUntilNextLaunch(): number {
-  // Spring Promo: Mar 25
-  const now = new Date();
-  const launch = new Date(now.getFullYear(), 2, 25); // March 25
-  if (launch < now) {
-    // Next launch: Apr 8
-    launch.setMonth(3);
-    launch.setDate(8);
-  }
-  return Math.max(0, Math.ceil((launch.getTime() - now.getTime()) / 86400000));
-}
-
 export default function DailyBriefing() {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [priorities, setPriorities] = useState<{ id: string; text: string; source: string; url?: string }[]>([]);
@@ -146,7 +134,6 @@ export default function DailyBriefing() {
 
   const todayEvents = events.filter((e) => isToday(e.start_time));
   const tomorrowEvents = events.filter((e) => isTomorrow(e.start_time));
-  const nextLaunchDays = daysUntilNextLaunch();
 
   return (
     <div className="animate-fade-in-up" style={{ animationDelay: "100ms", opacity: 0 }}>
@@ -186,7 +173,7 @@ export default function DailyBriefing() {
           </div>
         </div>
 
-        <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-5">
           {/* Top Priorities */}
           <div
             className="p-5 rounded-xl"
@@ -291,6 +278,22 @@ export default function DailyBriefing() {
                   )}
                 </>
               )}
+
+              {/* Limitless integration placeholder */}
+              <div className="mt-3 pt-3" style={{ borderTop: "1px solid var(--glass-border)" }}>
+                <div className="flex items-center gap-2">
+                  <span
+                    className="w-1.5 h-1.5 rounded-full shrink-0"
+                    style={{ background: "var(--neon-purple)", opacity: 0.5 }}
+                  />
+                  <span
+                    className="text-xs italic"
+                    style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.55rem" }}
+                  >
+                    Limitless Daily Insights will appear here once connected
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -345,66 +348,6 @@ export default function DailyBriefing() {
                   </div>
                 </>
               )}
-            </div>
-          </div>
-
-          {/* Quick Stats */}
-          <div
-            className="p-5 rounded-xl"
-            style={{ background: "rgba(0,255,200,0.05)", border: "1px solid rgba(0,255,200,0.1)" }}
-          >
-            <div className="flex items-center gap-2 mb-4">
-              <span
-                className="w-2 h-2 rounded-full"
-                style={{ background: "var(--neon-cyan)", boxShadow: "0 0 6px var(--neon-cyan)" }}
-              />
-              <span
-                className="text-xs uppercase tracking-wider font-semibold"
-                style={{ color: "var(--neon-cyan)", fontFamily: "'Orbitron', sans-serif", fontSize: "0.6rem" }}
-              >
-                Quick Stats
-              </span>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <span className="text-xs block mb-1" style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.55rem" }}>
-                  PG REVENUE PACE
-                </span>
-                <span
-                  className="text-xl font-bold"
-                  style={{ color: "var(--neon-blue)", fontFamily: "'JetBrains Mono', monospace" }}
-                >
-                  $42.3M
-                </span>
-                <span className="text-xs ml-1" style={{ color: "var(--text-muted)", fontSize: "0.55rem" }}>
-                  / $164M target
-                </span>
-              </div>
-              <div>
-                <span className="text-xs block mb-1" style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.55rem" }}>
-                  NEXT LAUNCH
-                </span>
-                <span
-                  className="text-xl font-bold"
-                  style={{ color: "var(--neon-green)", fontFamily: "'JetBrains Mono', monospace" }}
-                >
-                  {nextLaunchDays}
-                </span>
-                <span className="text-xs ml-1" style={{ color: "var(--text-muted)", fontSize: "0.55rem" }}>
-                  days
-                </span>
-              </div>
-              <div>
-                <span className="text-xs block mb-1" style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.55rem" }}>
-                  NET MONTHLY
-                </span>
-                <span
-                  className="text-xl font-bold"
-                  style={{ color: "var(--neon-green)", fontFamily: "'JetBrains Mono', monospace" }}
-                >
-                  +$33.5K
-                </span>
-              </div>
             </div>
           </div>
         </div>

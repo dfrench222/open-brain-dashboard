@@ -1,22 +1,18 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Header from "@/components/Header";
 import MorningAnchor from "@/components/MorningAnchor";
 import DailyBriefing from "@/components/DailyBriefing";
 import NotificationBar from "@/components/NotificationBar";
 import DashboardGrid from "@/components/DashboardGrid";
 
-type Context = "all" | "jumm-life" | "performance-golf";
-
 export default function Home() {
-  const [context, setContext] = useState<Context>("all");
-
   return (
     <div className="relative min-h-screen" style={{ zIndex: 1 }}>
-      <Header context={context} onContextChange={setContext} />
+      <Header />
       <main className="max-w-[1600px] mx-auto pb-16 px-6 md:px-10 lg:px-16">
-        <div className="mb-10 md:mb-14">
+        <div className="mt-8 md:mt-12 mb-10 md:mb-14">
           <MorningAnchor />
         </div>
         <div className="mb-8 md:mb-10">

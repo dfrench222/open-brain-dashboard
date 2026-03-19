@@ -6,7 +6,7 @@ import NeonText from "../ui/NeonText";
 
 const events = [
   { name: "Penny's Spring Break", date: "Apr 5-12", type: "family" },
-  { name: "Caitlin's Birthday", date: "Apr 18", type: "family" },
+  { name: "Caitlin's Birthday", date: "May 28", type: "family" },
   { name: "Brian Visit — Michigan", date: "May 2-4", type: "travel" },
 ];
 

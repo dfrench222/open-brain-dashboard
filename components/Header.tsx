@@ -3,17 +3,9 @@
 import React, { useState, useEffect } from "react";
 import NeonText from "./ui/NeonText";
 
-type Context = "all" | "jumm-life" | "performance-golf";
-
-interface HeaderProps {
-  context: Context;
-  onContextChange: (ctx: Context) => void;
-}
-
-export default function Header({ context, onContextChange }: HeaderProps) {
+export default function Header() {
   const [time, setTime] = useState<string>("");
   const [date, setDate] = useState<string>("");
-  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const update = () => {
@@ -39,12 +31,6 @@ export default function Header({ context, onContextChange }: HeaderProps) {
     const interval = setInterval(update, 1000);
     return () => clearInterval(interval);
   }, []);
-
-  const contexts: { key: Context; label: string }[] = [
-    { key: "all", label: "ALL" },
-    { key: "jumm-life", label: "JUMM LIFE" },
-    { key: "performance-golf", label: "PERFORMANCE GOLF" },
-  ];
 
   return (
     <header
@@ -98,35 +84,6 @@ export default function Header({ context, onContextChange }: HeaderProps) {
           </div>
         </div>
 
-        {/* Context Switcher — Desktop */}
-        <div
-          className="hidden md:flex items-center gap-1.5 p-1.5 rounded-2xl"
-          style={{
-            background: "rgba(255,255,255,0.04)",
-            border: "1px solid rgba(255,255,255,0.08)",
-          }}
-        >
-          {contexts.map((ctx) => (
-            <button
-              key={ctx.key}
-              onClick={() => onContextChange(ctx.key)}
-              className="px-6 py-2.5 rounded-xl text-sm uppercase tracking-wider font-semibold transition-all duration-200"
-              style={{
-                fontFamily: "'Orbitron', sans-serif",
-                fontSize: "0.75rem",
-                color: context === ctx.key ? "var(--bg-primary)" : "var(--text-secondary)",
-                background:
-                  context === ctx.key
-                    ? "linear-gradient(135deg, var(--neon-cyan), rgba(0,255,200,0.8))"
-                    : "transparent",
-                boxShadow: context === ctx.key ? "0 0 20px rgba(0,255,200,0.35), 0 0 40px rgba(0,255,200,0.1)" : "none",
-              }}
-            >
-              {ctx.label}
-            </button>
-          ))}
-        </div>
-
         {/* Right side — Time + Avatar */}
         <div className="flex items-center gap-4">
           <div className="hidden sm:block text-right">
@@ -160,48 +117,8 @@ export default function Header({ context, onContextChange }: HeaderProps) {
           >
             DF
           </div>
-
-          {/* Hamburger — Mobile */}
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden flex flex-col gap-1 p-2"
-          >
-            <span className="w-5 h-0.5 rounded" style={{ background: "var(--neon-cyan)" }} />
-            <span className="w-5 h-0.5 rounded" style={{ background: "var(--neon-cyan)" }} />
-            <span className="w-3 h-0.5 rounded" style={{ background: "var(--neon-cyan)" }} />
-          </button>
         </div>
       </div>
-
-      {/* Mobile menu */}
-      {menuOpen && (
-        <div
-          className="md:hidden mt-4 p-3 rounded-xl"
-          style={{
-            background: "rgba(17,17,24,0.95)",
-            border: "1px solid var(--glass-border)",
-          }}
-        >
-          {contexts.map((ctx) => (
-            <button
-              key={ctx.key}
-              onClick={() => {
-                onContextChange(ctx.key);
-                setMenuOpen(false);
-              }}
-              className="block w-full text-left px-4 py-3 rounded-lg text-xs uppercase tracking-wider font-medium transition-all"
-              style={{
-                fontFamily: "'Orbitron', sans-serif",
-                fontSize: "0.65rem",
-                color: context === ctx.key ? "var(--neon-cyan)" : "var(--text-secondary)",
-                background: context === ctx.key ? "rgba(0,255,200,0.08)" : "transparent",
-              }}
-            >
-              {ctx.label}
-            </button>
-          ))}
-        </div>
-      )}
     </header>
   );
 }
