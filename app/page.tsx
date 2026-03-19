@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Header from "@/components/Header";
 import MorningAnchor from "@/components/MorningAnchor";
+import DailyBriefing from "@/components/DailyBriefing";
 import NotificationBar from "@/components/NotificationBar";
 import DashboardGrid from "@/components/DashboardGrid";
 
@@ -18,6 +19,9 @@ export default function Home() {
         <div className="mb-10 md:mb-14">
           <MorningAnchor />
         </div>
+        <div className="mb-8 md:mb-10">
+          <DailyBriefing />
+        </div>
         <div className="mb-10 md:mb-14">
           <NotificationBar />
         </div>
@@ -32,7 +36,7 @@ export default function Home() {
             className="text-xs"
             style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem" }}
           >
-            OPEN BRAIN v1.0 &middot; Built with Next.js &middot; Supabase &middot; Deployed on Vercel
+            OPEN BRAIN v2.0 &middot; Built with Next.js &middot; Supabase &middot; Deployed on Vercel
           </p>
         </div>
       </footer>

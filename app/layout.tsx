@@ -1,17 +1,24 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://open-brain-dashboard.vercel.app"),
+  metadataBase: new URL("https://open-brain-dashboard-eight.vercel.app"),
   title: "Open Brain | Don French",
   description: "Personal Life Operating System — Command Center for Jumm Life & Performance Golf",
   icons: {
     icon: "/favicon.svg",
+    apple: "/icon-192.png",
+  },
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Open Brain",
   },
   openGraph: {
     title: "Open Brain | Don French",
     description: "Personal Life Operating System Dashboard",
-    url: "https://open-brain-dashboard.vercel.app",
+    url: "https://open-brain-dashboard-eight.vercel.app",
     type: "website",
     images: [
       {
@@ -28,6 +35,14 @@ export const metadata: Metadata = {
     description: "Personal Life Operating System Dashboard",
     images: ["/og-image.png"],
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#00ffc8",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
