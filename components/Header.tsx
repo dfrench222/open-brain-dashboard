@@ -34,14 +34,14 @@ export default function Header() {
 
   return (
     <header
-      className="sticky top-0 z-50 px-6 md:px-10 lg:px-16 py-5"
+      className="sticky top-0 z-50 px-4 md:px-8 lg:px-12 py-5"
       style={{
-        background: "linear-gradient(180deg, rgba(10,10,15,0.98) 0%, rgba(10,10,15,0.9) 100%)",
+        background: "linear-gradient(180deg, rgba(13,12,12,0.98) 0%, rgba(13,12,12,0.9) 100%)",
         backdropFilter: "blur(20px)",
         borderBottom: "1px solid var(--glass-border)",
       }}
     >
-      <div className="max-w-[1600px] mx-auto flex items-center justify-between">
+      <div className="max-w-[1440px] mx-auto flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center gap-3">
           <div
@@ -84,7 +84,7 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Right side — Time + Avatar */}
+        {/* Right side -- Time + Avatar */}
         <div className="flex items-center gap-4">
           <div className="hidden sm:block text-right">
             <div

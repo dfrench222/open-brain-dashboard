@@ -4,52 +4,68 @@ import React from "react";
 import GlassCard from "../ui/GlassCard";
 import NeonText from "../ui/NeonText";
 
-interface MetricCardProps {
-  label: string;
-  value: string;
-  subtext?: string;
-  color: string;
-  trend?: "up" | "down" | "flat";
-}
-
-function MetricCard({ label, value, subtext, color, trend }: MetricCardProps) {
-  const trendIcon = trend === "up" ? "\u2191" : trend === "down" ? "\u2193" : "\u2192";
-  const trendColor =
-    trend === "up" ? "var(--neon-green)" : trend === "down" ? "var(--neon-red)" : "var(--text-muted)";
-
+/* Pending connection placeholder */
+function PendingMetric({ label, connectLabel }: { label: string; connectLabel: string }) {
   return (
     <div
-      className="p-5 rounded-xl transition-all duration-200"
+      className="p-5 rounded-xl"
+      style={{
+        background: "rgba(255,255,255,0.02)",
+        border: "1px dashed rgba(179, 170, 163, 0.15)",
+      }}
+    >
+      <span
+        className="text-xs uppercase tracking-wider block mb-3"
+        style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem", letterSpacing: "0.1em" }}
+      >
+        {label}
+      </span>
+      <span
+        className="text-sm block italic"
+        style={{ color: "var(--text-muted)" }}
+      >
+        Pending connection
+      </span>
+      <span
+        className="text-xs mt-2 flex items-center gap-1.5"
+        style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.55rem" }}
+      >
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+        </svg>
+        {connectLabel}
+      </span>
+    </div>
+  );
+}
+
+/* Verified metric card */
+function VerifiedMetric({ label, value, subtext, color }: { label: string; value: string; subtext?: string; color: string }) {
+  return (
+    <div
+      className="p-5 rounded-xl"
       style={{
         background: "rgba(255,255,255,0.02)",
         border: "1px solid var(--glass-border)",
       }}
     >
-      <div className="flex items-start justify-between mb-2">
-        <span
-          className="text-xs uppercase tracking-wider"
-          style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem" }}
-        >
-          {label}
-        </span>
-        {trend && (
-          <span className="text-sm font-bold" style={{ color: trendColor }}>
-            {trendIcon}
-          </span>
-        )}
-      </div>
-      <div
-        className="text-2xl font-bold tracking-tight whitespace-nowrap"
+      <span
+        className="text-xs uppercase tracking-wider block mb-3"
+        style={{ color: "var(--text-secondary)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem", letterSpacing: "0.1em" }}
+      >
+        {label}
+      </span>
+      <span
+        className="text-2xl font-bold block metric-value"
         style={{
           color,
-          fontFamily: "'JetBrains Mono', monospace",
           textShadow: `0 0 15px ${color}30`,
         }}
       >
         {value}
-      </div>
+      </span>
       {subtext && (
-        <span className="text-xs mt-1 block" style={{ color: "var(--text-muted)" }}>
+        <span className="text-xs mt-1 block" style={{ color: "var(--text-muted)", fontSize: "0.6rem" }}>
           {subtext}
         </span>
       )}
@@ -60,9 +76,9 @@ function MetricCard({ label, value, subtext, color, trend }: MetricCardProps) {
 export default function FinancialOverview() {
   return (
     <GlassCard delay={200}>
-      <div className="flex items-center gap-3 mb-8">
+      <div className="flex items-center gap-3 mb-6">
         <div
-          className="w-8 h-8 rounded-lg flex items-center justify-center"
+          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
           style={{ background: "rgba(0,255,200,0.1)", border: "1px solid rgba(0,255,200,0.2)" }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--neon-cyan)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -75,59 +91,54 @@ export default function FinancialOverview() {
         </NeonText>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <MetricCard
-          label="Monthly Income"
-          value="$112K"
-          subtext="Performance Golf"
-          color="var(--neon-green)"
-          trend="up"
-        />
-        <MetricCard
-          label="Monthly Expenses"
-          value="$78.5K"
-          subtext="All categories"
-          color="var(--neon-amber)"
-          trend="flat"
-        />
-        <MetricCard
-          label="Restitution Bal."
-          value="$1.24M"
-          subtext="Monthly payments active"
-          color="var(--neon-purple)"
-          trend="down"
-        />
-        <MetricCard
+      <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: "16px" }}>
+        {/* Monthly Income — PENDING: no QuickBooks connected */}
+        <PendingMetric label="Monthly Income" connectLabel="Connect QuickBooks" />
+
+        {/* Monthly Expenses — PENDING: no QuickBooks connected */}
+        <PendingMetric label="Monthly Expenses" connectLabel="Connect QuickBooks" />
+
+        {/* Restitution Balance — estimated from court records */}
+        <div
+          className="p-5 rounded-xl"
+          style={{
+            background: "rgba(255,255,255,0.02)",
+            border: "1px solid var(--glass-border)",
+          }}
+        >
+          <span
+            className="text-xs uppercase tracking-wider block mb-3"
+            style={{ color: "var(--text-secondary)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem", letterSpacing: "0.1em" }}
+          >
+            Restitution Bal.
+          </span>
+          <span
+            className="text-2xl font-bold block metric-value"
+            style={{
+              color: "var(--neon-purple)",
+              textShadow: "0 0 15px rgba(168,85,247,0.3)",
+            }}
+          >
+            ~$8.4M
+          </span>
+          <span className="text-xs mt-1 block" style={{ color: "var(--text-muted)", fontSize: "0.55rem", lineHeight: "1.4" }}>
+            Estimated &mdash; request exact balance from Clerk of Courts
+          </span>
+          <span className="text-xs mt-1 block" style={{ color: "var(--text-muted)", fontSize: "0.5rem", fontStyle: "italic" }}>
+            Original: $9,188,038.63 &middot; Est. paid: ~$750K
+          </span>
+        </div>
+
+        {/* Penny Expenses — VERIFIED from Don's records */}
+        <VerifiedMetric
           label="Penny Expenses"
           value="$10,596"
           subtext="Support + Tuition + Fund"
           color="var(--neon-blue)"
-          trend="flat"
         />
       </div>
 
-      {/* Net trend */}
-      <div
-        className="mt-6 p-5 rounded-xl flex items-center justify-between gap-4"
-        style={{
-          background: "rgba(34,197,94,0.05)",
-          border: "1px solid rgba(34,197,94,0.1)",
-        }}
-      >
-        <span className="text-xs uppercase tracking-wider" style={{ color: "var(--text-secondary)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem" }}>
-          Net Monthly
-        </span>
-        <span
-          className="text-lg font-bold whitespace-nowrap shrink-0"
-          style={{
-            color: "var(--neon-green)",
-            fontFamily: "'JetBrains Mono', monospace",
-            textShadow: "0 0 10px rgba(34,197,94,0.3)",
-          }}
-        >
-          +$33.5K <span className="text-sm">\u2191</span>
-        </span>
-      </div>
+      {/* Net Monthly — REMOVED: cannot calculate without real income/expense data */}
     </GlassCard>
   );
 }

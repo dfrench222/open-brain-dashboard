@@ -11,7 +11,7 @@ export default function Home() {
   return (
     <div className="relative min-h-screen" style={{ zIndex: 1 }}>
       <Header />
-      <main className="max-w-[1600px] mx-auto pb-16 px-6 md:px-10 lg:px-16">
+      <main className="max-w-[1440px] mx-auto pb-16 px-4 md:px-8 lg:px-12">
         <div className="mt-8 md:mt-12 mb-10 md:mb-14">
           <MorningAnchor />
         </div>
@@ -25,8 +25,8 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="px-6 md:px-10 lg:px-16 py-10 text-center">
-        <div className="max-w-[1600px] mx-auto">
+      <footer className="px-4 md:px-8 lg:px-12 py-10 text-center">
+        <div className="max-w-[1440px] mx-auto">
           <div className="h-px mb-8" style={{ background: "linear-gradient(90deg, transparent, var(--glass-border), transparent)" }} />
           <p
             className="text-xs"

@@ -19,37 +19,37 @@ function SectionLabel({ label, color }: { label: string; color: string }) {
 
 export default function DashboardGrid() {
   return (
-    <div className="max-w-[1600px] mx-auto">
+    <div className="max-w-[1440px] mx-auto">
       {/* COMMUNICATIONS Section */}
-      <section className="mb-14 md:mb-20">
+      <section style={{ marginBottom: "40px" }}>
         <SectionLabel label="Communications" color="var(--neon-blue)" />
-        <div className="grid grid-cols-1 gap-6 md:gap-8">
+        <div className="grid grid-cols-1" style={{ gap: "24px" }}>
           <Communications />
         </div>
       </section>
 
       {/* OPERATIONS Section */}
-      <section className="mb-14 md:mb-20">
+      <section style={{ marginBottom: "40px" }}>
         <SectionLabel label="Operations" color="var(--neon-cyan)" />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2" style={{ gap: "24px" }}>
           <FinancialOverview />
           <PGCommandCenter />
         </div>
       </section>
 
       {/* PERSONAL Section */}
-      <section className="mb-14 md:mb-20">
+      <section style={{ marginBottom: "40px" }}>
         <SectionLabel label="Personal" color="var(--neon-purple)" />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2" style={{ gap: "24px" }}>
           <PersonalLife />
           <PeopleCRM />
         </div>
       </section>
 
       {/* SYSTEM Section */}
-      <section className="mb-8">
+      <section style={{ marginBottom: "40px" }}>
         <SectionLabel label="System" color="var(--neon-green)" />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2" style={{ gap: "24px" }}>
           <ActiveProjects />
           <AIActivity />
         </div>

@@ -5,7 +5,6 @@ import React, { useEffect, useState } from "react";
 interface CalendarEvent {
   id: string;
   title: string;
-  description?: string;
   start_time: string;
   end_time: string;
   location?: string;
@@ -13,19 +12,17 @@ interface CalendarEvent {
   type: string;
 }
 
-interface ClickUpTask {
-  id: string;
-  name: string;
-  status: string;
-  due_date: string | null;
-  list: string;
-}
-
-interface NotionPage {
-  id: string;
-  title: string;
-  status?: string;
-  url?: string;
+interface BriefingData {
+  available: boolean;
+  date: string;
+  source: string;
+  actionItems: string[];
+  followUps: string[];
+  decisions: string[];
+  unresolvedQuestions: string[];
+  ideas: string[];
+  narrative: string;
+  message?: string;
 }
 
 function formatTime(isoStr: string): string {
@@ -54,10 +51,15 @@ function isTomorrow(isoStr: string): boolean {
   );
 }
 
+function formatBriefingDate(dateStr: string): string {
+  if (!dateStr) return "";
+  const d = new Date(dateStr + "T12:00:00");
+  return d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+}
+
 export default function DailyBriefing() {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
-  const [priorities, setPriorities] = useState<{ id: string; text: string; source: string; url?: string }[]>([]);
-  const [pendingActions, setPendingActions] = useState<{ id: string; text: string; source: string }[]>([]);
+  const [briefing, setBriefing] = useState<BriefingData | null>(null);
 
   useEffect(() => {
     // Fetch calendar events
@@ -68,61 +70,13 @@ export default function DailyBriefing() {
       })
       .catch(() => {});
 
-    // Fetch ClickUp tasks for priorities
-    fetch("/api/clickup")
+    // Fetch Limitless briefing data
+    fetch("/api/briefing")
       .then((res) => res.json())
-      .then((data) => {
-        if (data.tasks) {
-          const urgent = data.tasks
-            .filter((t: ClickUpTask) => {
-              if (t.status === "hold for launch" || t.status === "Closed") return false;
-              const due = t.due_date ? new Date(t.due_date).getTime() : null;
-              return (
-                t.status === "in progress" ||
-                (due && due < Date.now() + 2 * 86400000)
-              );
-            })
-            .slice(0, 3)
-            .map((t: ClickUpTask) => ({
-              id: `cu-${t.id}`,
-              text: t.name,
-              source: "ClickUp",
-              url: `https://app.clickup.com/t/${t.id}`,
-            }));
-          setPriorities((prev) => [...urgent, ...prev].slice(0, 5));
-        }
+      .then((data: BriefingData) => {
+        setBriefing(data);
       })
       .catch(() => {});
-
-    // Fetch Notion pages for pending actions
-    fetch("/api/notion")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.pages) {
-          const pending = data.pages
-            .filter((p: NotionPage) => p.status === "in-progress" || p.status === "pending")
-            .slice(0, 3)
-            .map((p: NotionPage) => ({
-              id: `n-${p.id}`,
-              text: p.title,
-              source: "Notion",
-            }));
-          setPendingActions(pending);
-        }
-      })
-      .catch(() => {});
-
-    // Add fallback priorities if API data is light
-    setPriorities((prev) => {
-      if (prev.length === 0) {
-        return [
-          { id: "p1", text: "PG Q1 revenue review with Brixton", source: "PG" },
-          { id: "p2", text: "Restitution payment — verify March submission", source: "Finance" },
-          { id: "p3", text: "Open Brain dashboard rebuild", source: "Projects" },
-        ];
-      }
-      return prev;
-    });
   }, []);
 
   const todayStr = new Date().toLocaleDateString("en-US", {
@@ -135,13 +89,15 @@ export default function DailyBriefing() {
   const todayEvents = events.filter((e) => isToday(e.start_time));
   const tomorrowEvents = events.filter((e) => isTomorrow(e.start_time));
 
+  const hasLimitless = briefing?.available === true;
+
   return (
     <div className="animate-fade-in-up" style={{ animationDelay: "100ms", opacity: 0 }}>
       <div
         className="rounded-2xl overflow-hidden"
         style={{
-          background: "linear-gradient(135deg, rgba(0,255,200,0.04) 0%, rgba(59,130,246,0.04) 50%, rgba(168,85,247,0.04) 100%)",
-          border: "1px solid rgba(0,255,200,0.12)",
+          background: "linear-gradient(135deg, rgba(0,255,200,0.03) 0%, rgba(59,130,246,0.03) 50%, rgba(168,85,247,0.03) 100%)",
+          border: "1px solid rgba(179, 170, 163, 0.08)",
         }}
       >
         {/* Header */}
@@ -149,7 +105,7 @@ export default function DailyBriefing() {
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-3">
               <div
-                className="w-8 h-8 rounded-lg flex items-center justify-center"
+                className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
                 style={{ background: "rgba(0,255,200,0.1)", border: "1px solid rgba(0,255,200,0.2)" }}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--neon-cyan)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -157,12 +113,22 @@ export default function DailyBriefing() {
                   <polyline points="12 6 12 12 16 14" />
                 </svg>
               </div>
-              <span
-                className="text-xs uppercase tracking-[0.2em] font-semibold"
-                style={{ fontFamily: "'Orbitron', sans-serif", color: "var(--neon-cyan)", fontSize: "0.7rem" }}
-              >
-                Today&apos;s Briefing
-              </span>
+              <div>
+                <span
+                  className="text-xs uppercase tracking-[0.2em] font-semibold"
+                  style={{ fontFamily: "'Orbitron', sans-serif", color: "var(--neon-cyan)", fontSize: "0.7rem" }}
+                >
+                  Today&apos;s Briefing
+                </span>
+                {hasLimitless && briefing?.date && (
+                  <span
+                    className="block text-xs mt-0.5"
+                    style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.5rem" }}
+                  >
+                    From {formatBriefingDate(briefing.date)}&apos;s Limitless Insights
+                  </span>
+                )}
+              </div>
             </div>
             <span
               className="text-xs"
@@ -173,45 +139,54 @@ export default function DailyBriefing() {
           </div>
         </div>
 
-        <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-5">
-          {/* Top Priorities */}
+        <div className="p-6 grid grid-cols-1 md:grid-cols-3" style={{ gap: "20px" }}>
+          {/* Top Priorities / Action Items */}
           <div
             className="p-5 rounded-xl"
             style={{ background: "rgba(239,68,68,0.05)", border: "1px solid rgba(239,68,68,0.1)" }}
           >
             <div className="flex items-center gap-2 mb-4">
               <span
-                className="w-2 h-2 rounded-full"
+                className="w-2 h-2 rounded-full shrink-0"
                 style={{ background: "var(--neon-red)", boxShadow: "0 0 6px var(--neon-red)" }}
               />
               <span
                 className="text-xs uppercase tracking-wider font-semibold"
                 style={{ color: "var(--neon-red)", fontFamily: "'Orbitron', sans-serif", fontSize: "0.6rem" }}
               >
-                Top Priorities
+                {hasLimitless ? "Action Items" : "Top Priorities"}
               </span>
             </div>
-            <div className="space-y-3">
-              {priorities.slice(0, 5).map((p, idx) => (
-                <div key={p.id} className="flex items-start gap-2.5">
-                  <span
-                    className="text-xs font-bold mt-0.5 shrink-0"
-                    style={{ color: "var(--neon-red)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.65rem" }}
-                  >
-                    {idx + 1}.
-                  </span>
-                  <div className="min-w-0">
-                    <span className="text-sm block leading-snug" style={{ color: "var(--text-primary)" }}>
-                      {p.text}
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              {hasLimitless && briefing!.actionItems.length > 0 ? (
+                briefing!.actionItems.map((item, idx) => (
+                  <div key={`a-${idx}`} className="flex items-start gap-2.5">
+                    <span
+                      className="text-xs font-bold mt-0.5 shrink-0 metric-value"
+                      style={{ color: "var(--neon-red)", fontSize: "0.65rem" }}
+                    >
+                      {idx + 1}.
                     </span>
-                    <span className="text-xs" style={{ color: "var(--text-muted)", fontSize: "0.55rem" }}>
-                      {p.source}
+                    <span className="text-sm leading-snug" style={{ color: "var(--text-primary)" }}>
+                      {item.replace(/\*\*/g, "")}
                     </span>
                   </div>
-                </div>
-              ))}
-              {priorities.length === 0 && (
-                <p className="text-xs" style={{ color: "var(--text-muted)" }}>No urgent items</p>
+                ))
+              ) : (
+                <>
+                  <div className="flex items-start gap-2.5">
+                    <span className="text-xs font-bold mt-0.5 shrink-0 metric-value" style={{ color: "var(--neon-red)", fontSize: "0.65rem" }}>1.</span>
+                    <span className="text-sm leading-snug" style={{ color: "var(--text-primary)" }}>PG Q1 revenue review with Brixton</span>
+                  </div>
+                  <div className="flex items-start gap-2.5">
+                    <span className="text-xs font-bold mt-0.5 shrink-0 metric-value" style={{ color: "var(--neon-red)", fontSize: "0.65rem" }}>2.</span>
+                    <span className="text-sm leading-snug" style={{ color: "var(--text-primary)" }}>Restitution payment &mdash; verify March submission</span>
+                  </div>
+                  <div className="flex items-start gap-2.5">
+                    <span className="text-xs font-bold mt-0.5 shrink-0 metric-value" style={{ color: "var(--neon-red)", fontSize: "0.65rem" }}>3.</span>
+                    <span className="text-sm leading-snug" style={{ color: "var(--text-primary)" }}>Open Brain dashboard rebuild</span>
+                  </div>
+                </>
               )}
             </div>
           </div>
@@ -223,7 +198,7 @@ export default function DailyBriefing() {
           >
             <div className="flex items-center gap-2 mb-4">
               <span
-                className="w-2 h-2 rounded-full"
+                className="w-2 h-2 rounded-full shrink-0"
                 style={{ background: "var(--neon-blue)", boxShadow: "0 0 6px var(--neon-blue)" }}
               />
               <span
@@ -233,13 +208,13 @@ export default function DailyBriefing() {
                 Today&apos;s Schedule
               </span>
             </div>
-            <div className="space-y-3">
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
               {todayEvents.length > 0 ? (
                 todayEvents.map((event) => (
                   <div key={event.id} className="flex items-start gap-2.5">
                     <span
-                      className="text-xs font-medium mt-0.5 shrink-0"
-                      style={{ color: "var(--neon-blue)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem", minWidth: "60px" }}
+                      className="text-xs font-medium mt-0.5 shrink-0 metric-value"
+                      style={{ color: "var(--neon-blue)", fontSize: "0.6rem", minWidth: "60px" }}
                     >
                       {formatTime(event.start_time)}
                     </span>
@@ -264,8 +239,8 @@ export default function DailyBriefing() {
                       {tomorrowEvents.slice(0, 2).map((event) => (
                         <div key={event.id} className="flex items-start gap-2.5 mb-2">
                           <span
-                            className="text-xs font-medium mt-0.5 shrink-0"
-                            style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem", minWidth: "60px" }}
+                            className="text-xs font-medium mt-0.5 shrink-0 metric-value"
+                            style={{ color: "var(--text-muted)", fontSize: "0.6rem", minWidth: "60px" }}
                           >
                             {formatTime(event.start_time)}
                           </span>
@@ -279,57 +254,50 @@ export default function DailyBriefing() {
                 </>
               )}
 
-              {/* Limitless integration placeholder */}
-              <div className="mt-3 pt-3" style={{ borderTop: "1px solid var(--glass-border)" }}>
-                <div className="flex items-center gap-2">
-                  <span
-                    className="w-1.5 h-1.5 rounded-full shrink-0"
-                    style={{ background: "var(--neon-purple)", opacity: 0.5 }}
-                  />
-                  <span
-                    className="text-xs italic"
-                    style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.55rem" }}
-                  >
-                    Limitless Daily Insights will appear here once connected
+              {/* Decisions from yesterday */}
+              {hasLimitless && briefing!.decisions.length > 0 && (
+                <div className="mt-3 pt-3" style={{ borderTop: "1px solid var(--glass-border)" }}>
+                  <span className="text-xs block mb-2 uppercase tracking-wider" style={{ color: "var(--text-muted)", fontFamily: "'Orbitron', sans-serif", fontSize: "0.5rem" }}>
+                    Yesterday&apos;s Decisions
                   </span>
+                  {briefing!.decisions.slice(0, 2).map((d, i) => (
+                    <div key={`d-${i}`} className="flex items-start gap-2 mb-2">
+                      <span className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "var(--neon-blue)", opacity: 0.5 }} />
+                      <span className="text-xs leading-snug" style={{ color: "var(--text-muted)", fontSize: "0.65rem" }}>
+                        {d.replace(/\*\*/g, "").replace(/^\*?Decision\*?:?\s*/i, "")}
+                      </span>
+                    </div>
+                  ))}
                 </div>
-              </div>
+              )}
             </div>
           </div>
 
-          {/* Pending Actions */}
+          {/* Follow-Ups / Pending Actions */}
           <div
             className="p-5 rounded-xl"
             style={{ background: "rgba(245,158,11,0.05)", border: "1px solid rgba(245,158,11,0.1)" }}
           >
             <div className="flex items-center gap-2 mb-4">
               <span
-                className="w-2 h-2 rounded-full"
+                className="w-2 h-2 rounded-full shrink-0"
                 style={{ background: "var(--neon-amber)", boxShadow: "0 0 6px var(--neon-amber)" }}
               />
               <span
                 className="text-xs uppercase tracking-wider font-semibold"
                 style={{ color: "var(--neon-amber)", fontFamily: "'Orbitron', sans-serif", fontSize: "0.6rem" }}
               >
-                Pending Actions
+                {hasLimitless ? "Follow-Ups" : "Pending Actions"}
               </span>
             </div>
-            <div className="space-y-3">
-              {pendingActions.length > 0 ? (
-                pendingActions.map((action) => (
-                  <div key={action.id} className="flex items-start gap-2.5">
-                    <span
-                      className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0"
-                      style={{ background: "var(--neon-amber)" }}
-                    />
-                    <div className="min-w-0">
-                      <span className="text-sm block leading-snug" style={{ color: "var(--text-primary)" }}>
-                        {action.text}
-                      </span>
-                      <span className="text-xs" style={{ color: "var(--text-muted)", fontSize: "0.55rem" }}>
-                        {action.source}
-                      </span>
-                    </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              {hasLimitless && briefing!.followUps.length > 0 ? (
+                briefing!.followUps.map((item, idx) => (
+                  <div key={`f-${idx}`} className="flex items-start gap-2.5">
+                    <span className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "var(--neon-amber)" }} />
+                    <span className="text-sm leading-snug" style={{ color: "var(--text-primary)" }}>
+                      {item.replace(/\*\*/g, "")}
+                    </span>
                   </div>
                 ))
               ) : (
@@ -347,6 +315,38 @@ export default function DailyBriefing() {
                     </span>
                   </div>
                 </>
+              )}
+
+              {/* Unresolved questions */}
+              {hasLimitless && briefing!.unresolvedQuestions.length > 0 && (
+                <div className="mt-3 pt-3" style={{ borderTop: "1px solid var(--glass-border)" }}>
+                  <span className="text-xs block mb-2 uppercase tracking-wider" style={{ color: "var(--text-muted)", fontFamily: "'Orbitron', sans-serif", fontSize: "0.5rem" }}>
+                    Unresolved
+                  </span>
+                  {briefing!.unresolvedQuestions.slice(0, 2).map((q, i) => (
+                    <div key={`q-${i}`} className="flex items-start gap-2 mb-2">
+                      <span className="text-xs mt-0.5 shrink-0" style={{ color: "var(--neon-amber)", opacity: 0.6 }}>?</span>
+                      <span className="text-xs leading-snug" style={{ color: "var(--text-muted)", fontSize: "0.65rem" }}>
+                        {q.replace(/\*\*/g, "")}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Not connected fallback */}
+              {!hasLimitless && (
+                <div className="mt-3 pt-3" style={{ borderTop: "1px solid var(--glass-border)" }}>
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "var(--neon-purple)", opacity: 0.5 }} />
+                    <span
+                      className="text-xs italic"
+                      style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.55rem" }}
+                    >
+                      {briefing?.message || "Connect local Limitless sync for daily briefing"}
+                    </span>
+                  </div>
+                </div>
               )}
             </div>
           </div>

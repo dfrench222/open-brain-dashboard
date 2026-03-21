@@ -220,8 +220,8 @@ export default function NotificationBar() {
           onClick={() => setExpanded(!expanded)}
           className="w-full flex items-center justify-between p-4 md:p-5 rounded-2xl transition-all duration-200 cursor-pointer"
           style={{
-            background: "rgba(17,17,24,0.7)",
-            border: "1px solid rgba(255,255,255,0.08)",
+            background: "rgba(23,21,21,0.7)",
+            border: "1px solid rgba(179,170,163,0.08)",
           }}
         >
           <div className="flex items-center gap-4">

@@ -34,10 +34,10 @@ export default function MorningAnchor() {
   return (
     <section className="animate-fade-in-up relative pt-10 md:pt-14 pb-2">
       <div
-        className="max-w-[1600px] mx-auto rounded-2xl p-8 md:p-12 relative overflow-hidden"
+        className="max-w-[1440px] mx-auto rounded-2xl p-8 md:p-12 relative overflow-hidden"
         style={{
           background: "linear-gradient(135deg, rgba(0,255,200,0.03) 0%, rgba(168,85,247,0.03) 50%, rgba(0,255,200,0.03) 100%)",
-          border: "1px solid rgba(0,255,200,0.1)",
+          border: "1px solid rgba(179, 170, 163, 0.08)",
         }}
       >
         {/* Decorative corner accents */}
@@ -47,7 +47,7 @@ export default function MorningAnchor() {
             borderTop: "2px solid var(--neon-cyan)",
             borderLeft: "2px solid var(--neon-cyan)",
             borderTopLeftRadius: "16px",
-            opacity: 0.4,
+            opacity: 0.3,
           }}
         />
         <div
@@ -56,18 +56,19 @@ export default function MorningAnchor() {
             borderBottom: "2px solid var(--neon-purple)",
             borderRight: "2px solid var(--neon-purple)",
             borderBottomRightRadius: "16px",
-            opacity: 0.4,
+            opacity: 0.3,
           }}
         />
 
         {/* North Star */}
-        <div className="text-center mb-8 md:mb-10">
+        <div className="text-center" style={{ marginBottom: "32px" }}>
           <p
-            className="text-xs uppercase tracking-[0.3em] mb-5"
+            className="text-xs uppercase mb-5"
             style={{
               color: "var(--text-muted)",
               fontFamily: "'Orbitron', sans-serif",
               fontSize: "0.65rem",
+              letterSpacing: "0.3em",
             }}
           >
             North Star Principle
@@ -81,7 +82,7 @@ export default function MorningAnchor() {
         </div>
 
         {/* Divider */}
-        <div className="flex items-center justify-center gap-4 my-8 md:my-10">
+        <div className="flex items-center justify-center gap-4" style={{ margin: "32px 0" }}>
           <div className="h-px flex-1 max-w-[100px]" style={{ background: "linear-gradient(90deg, transparent, var(--neon-cyan))" }} />
           <div
             className="w-2 h-2 rotate-45"
@@ -93,11 +94,12 @@ export default function MorningAnchor() {
         {/* Daily Quote */}
         <div className="text-center">
           <p
-            className="text-xs uppercase tracking-[0.3em] mb-4"
+            className="text-xs uppercase mb-4"
             style={{
               color: "var(--text-muted)",
               fontFamily: "'Orbitron', sans-serif",
               fontSize: "0.6rem",
+              letterSpacing: "0.3em",
             }}
           >
             Daily Wisdom &mdash; GuruKev Lessons
@@ -109,11 +111,8 @@ export default function MorningAnchor() {
             &ldquo;{quote.quote_text}&rdquo;
           </blockquote>
           <cite
-            className="block mt-3 text-sm not-italic"
-            style={{
-              color: "var(--text-muted)",
-              fontFamily: "'JetBrains Mono', monospace",
-            }}
+            className="block mt-3 text-sm not-italic metric-value"
+            style={{ color: "var(--text-muted)" }}
           >
             &mdash; {quote.source_author}
             {quote.source_title && (

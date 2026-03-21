@@ -73,6 +73,7 @@ export default function Communications() {
   const [jlMessages, setJlMessages] = useState<SlackMessage[]>([]);
   const [pgMessages, setPgMessages] = useState<SlackMessage[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [hasData, setHasData] = useState(false);
 
   const toggle = (id: string) => setExpandedId((prev) => (prev === id ? null : id));
 
@@ -80,23 +81,29 @@ export default function Communications() {
     fetch("/api/slack")
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data)) setJlMessages(data);
+        if (Array.isArray(data) && data.length > 0) {
+          setJlMessages(data);
+          setHasData(true);
+        }
       })
       .catch(() => {});
 
     fetch("/api/slack-pg")
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data)) setPgMessages(data);
+        if (Array.isArray(data) && data.length > 0) {
+          setPgMessages(data);
+          setHasData(true);
+        }
       })
       .catch(() => {});
   }, []);
 
   return (
     <GlassCard delay={350}>
-      <div className="flex items-center gap-3 mb-8">
+      <div className="flex items-center gap-3 mb-6">
         <div
-          className="w-8 h-8 rounded-lg flex items-center justify-center"
+          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
           style={{ background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)" }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--neon-blue)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -106,25 +113,42 @@ export default function Communications() {
         <NeonText size="md" color="var(--neon-blue)">
           Communications
         </NeonText>
-        <span
-          className="ml-auto text-xs px-2 py-1 rounded-full"
-          style={{
-            color: "var(--neon-blue)",
-            background: "rgba(59,130,246,0.08)",
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: "0.65rem",
-          }}
-        >
-          {jlMessages.length + pgMessages.length} messages
-        </span>
+        {hasData && (
+          <span
+            className="ml-auto text-xs px-2 py-1 rounded-full"
+            style={{
+              color: "var(--neon-blue)",
+              background: "rgba(59,130,246,0.08)",
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: "0.65rem",
+            }}
+          >
+            {jlMessages.length + pgMessages.length} messages
+          </span>
+        )}
       </div>
 
-      <div className="relative grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
+      {/* Sample data banner */}
+      {!hasData && (
+        <div
+          className="mb-6 p-3 rounded-lg text-center"
+          style={{
+            background: "rgba(179, 170, 163, 0.05)",
+            border: "1px dashed rgba(179, 170, 163, 0.15)",
+          }}
+        >
+          <span className="text-xs italic" style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem" }}>
+            Showing sample data &mdash; live Slack feed coming soon
+          </span>
+        </div>
+      )}
+
+      <div className="relative grid grid-cols-1 md:grid-cols-2" style={{ gap: "24px" }}>
         {/* JUMM LIFE Column */}
-        <div className="p-1">
-          <div className="flex items-center gap-2.5 mb-6 pb-3" style={{ borderBottom: "1px solid rgba(0,255,200,0.1)" }}>
+        <div>
+          <div className="flex items-center gap-2.5 mb-5 pb-3" style={{ borderBottom: "1px solid rgba(0,255,200,0.1)" }}>
             <span
-              className="w-2.5 h-2.5 rounded-full"
+              className="w-2.5 h-2.5 rounded-full shrink-0"
               style={{ background: "var(--neon-cyan)", boxShadow: "0 0 6px var(--neon-cyan)" }}
             />
             <span
@@ -140,12 +164,12 @@ export default function Communications() {
               {jlMessages.length}
             </span>
           </div>
-          <div className="space-y-3">
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
             {jlMessages.map((msg) => (
               <MessageRow key={msg.id} msg={msg} isExpanded={expandedId === msg.id} onToggle={() => toggle(msg.id)} />
             ))}
             {jlMessages.length === 0 && (
-              <p className="text-xs py-4" style={{ color: "var(--text-muted)" }}>Loading...</p>
+              <p className="text-xs py-4 italic" style={{ color: "var(--text-muted)" }}>No messages</p>
             )}
           </div>
         </div>
@@ -154,10 +178,10 @@ export default function Communications() {
         <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px" style={{ background: "var(--glass-border)" }} />
 
         {/* PERFORMANCE GOLF Column */}
-        <div className="p-1">
-          <div className="flex items-center gap-2.5 mb-6 pb-3" style={{ borderBottom: "1px solid rgba(245,158,11,0.1)" }}>
+        <div>
+          <div className="flex items-center gap-2.5 mb-5 pb-3" style={{ borderBottom: "1px solid rgba(245,158,11,0.1)" }}>
             <span
-              className="w-2.5 h-2.5 rounded-full"
+              className="w-2.5 h-2.5 rounded-full shrink-0"
               style={{ background: "var(--neon-amber)", boxShadow: "0 0 6px var(--neon-amber)" }}
             />
             <span
@@ -173,12 +197,12 @@ export default function Communications() {
               {pgMessages.length}
             </span>
           </div>
-          <div className="space-y-3">
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
             {pgMessages.map((msg) => (
               <MessageRow key={msg.id} msg={msg} isExpanded={expandedId === msg.id} onToggle={() => toggle(msg.id)} />
             ))}
             {pgMessages.length === 0 && (
-              <p className="text-xs py-4" style={{ color: "var(--text-muted)" }}>Loading...</p>
+              <p className="text-xs py-4 italic" style={{ color: "var(--text-muted)" }}>No messages</p>
             )}
           </div>
         </div>
@@ -225,8 +249,8 @@ function MessageRow({
           {msg.preview}
         </span>
         <span
-          className="text-xs shrink-0 ml-2"
-          style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem", whiteSpace: "nowrap" }}
+          className="text-xs shrink-0 ml-2 metric-value"
+          style={{ color: "var(--text-muted)", fontSize: "0.6rem", whiteSpace: "nowrap" }}
         >
           {timeAgo(msg.timestamp)}
         </span>
@@ -251,8 +275,8 @@ function MessageRow({
           <div className="pt-3 pb-2">
             <div className="flex items-center gap-2 mb-2">
               <span
-                className="text-xs font-medium"
-                style={{ color: "var(--text-secondary)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.65rem" }}
+                className="text-xs font-medium metric-value"
+                style={{ color: "var(--text-secondary)", fontSize: "0.65rem" }}
               >
                 {msg.channel}
               </span>
@@ -260,8 +284,8 @@ function MessageRow({
                 &middot;
               </span>
               <span
-                className="text-xs"
-                style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem" }}
+                className="text-xs metric-value"
+                style={{ color: "var(--text-muted)", fontSize: "0.6rem" }}
               >
                 {new Date(msg.timestamp).toLocaleString()}
               </span>
