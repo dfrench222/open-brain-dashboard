@@ -9,6 +9,7 @@ interface ClickUpTask {
   assignees: { id: number; username: string; email: string; initials: string }[];
   list: { name: string };
   date_updated: string;
+  url?: string;
 }
 
 interface ClickUpMember {
@@ -23,13 +24,9 @@ async function getDonUserId(token: string, teamId: string): Promise<number | nul
   try {
     const res = await fetch(
       `https://api.clickup.com/api/v2/team/${teamId}/member`,
-      {
-        headers: { Authorization: token },
-      }
+      { headers: { Authorization: token } }
     );
-
     if (!res.ok) return null;
-
     const data = await res.json();
     const members: ClickUpMember[] = data.members || [];
     const don = members.find(
@@ -51,24 +48,22 @@ export async function GET() {
 
   if (!token) {
     return NextResponse.json(
-      { error: "ClickUp API token not configured", tasks: [] },
+      { error: "ClickUp API token not configured", tasks: [], overdue: [], today: [], thisWeek: [], total: 0 },
       { status: 200 }
     );
   }
 
   try {
-    // Step 1: Get Don's user ID
     const donUserId = await getDonUserId(token, teamId);
 
-    // Step 2: Build task query — filter by assignee if we found Don's ID
-    let taskUrl = `https://api.clickup.com/api/v2/team/${teamId}/task?page=0&order_by=due_date&reverse=true&limit=30`;
+    let taskUrl = `https://api.clickup.com/api/v2/team/${teamId}/task?page=0&order_by=due_date&reverse=true&limit=50`;
     if (donUserId) {
       taskUrl += `&assignees[]=${donUserId}`;
     }
 
     const res = await fetch(taskUrl, {
       headers: { Authorization: token },
-      next: { revalidate: 300 }, // Cache for 5 minutes
+      next: { revalidate: 300 },
     });
 
     if (!res.ok) {
@@ -96,9 +91,10 @@ export async function GET() {
         ? new Date(parseInt(t.date_updated)).toISOString()
         : null,
       workspace: "performance-golf",
+      url: `https://app.clickup.com/t/${t.id}`,
     }));
 
-    // Step 3: Client-side fallback filter if we couldn't get Don's ID from the members API
+    // Client-side fallback filter if we couldn't get Don's ID
     if (!donUserId) {
       tasks = tasks.filter((t: { assignees: { name: string }[] }) =>
         t.assignees.some(
@@ -109,9 +105,54 @@ export async function GET() {
       );
     }
 
-    return NextResponse.json({ tasks });
+    // Filter out closed/hold tasks for categorization
+    const activeTasks = tasks.filter(
+      (t: { status: string }) =>
+        t.status.toLowerCase() !== "closed" &&
+        t.status.toLowerCase() !== "hold for launch"
+    );
+
+    // Categorize by due date
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const todayEnd = new Date(todayStart);
+    todayEnd.setDate(todayEnd.getDate() + 1);
+    const weekEnd = new Date(todayStart);
+    weekEnd.setDate(weekEnd.getDate() + 7);
+
+    const overdue = activeTasks.filter((t: { due_date: string | null }) => {
+      if (!t.due_date) return false;
+      return new Date(t.due_date) < todayStart;
+    });
+
+    const today = activeTasks.filter((t: { due_date: string | null }) => {
+      if (!t.due_date) return false;
+      const d = new Date(t.due_date);
+      return d >= todayStart && d < todayEnd;
+    });
+
+    const thisWeek = activeTasks.filter((t: { due_date: string | null }) => {
+      if (!t.due_date) return false;
+      const d = new Date(t.due_date);
+      return d >= todayEnd && d < weekEnd;
+    });
+
+    return NextResponse.json({
+      tasks: activeTasks,
+      overdue,
+      today,
+      thisWeek,
+      total: activeTasks.length,
+    });
   } catch (err) {
     console.error("ClickUp fetch error:", err);
-    return NextResponse.json({ error: "Failed to fetch ClickUp tasks", tasks: [] });
+    return NextResponse.json({
+      error: "Failed to fetch ClickUp tasks",
+      tasks: [],
+      overdue: [],
+      today: [],
+      thisWeek: [],
+      total: 0,
+    });
   }
 }

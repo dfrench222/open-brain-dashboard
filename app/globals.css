@@ -1,28 +1,36 @@
 @import "tailwindcss";
 
 :root {
-  /* Warm palette — matched from SSP AOV Dashboard */
+  /* Warm palette -- SSP AOV Dashboard reference */
   --bg-primary: #0D0C0C;
-  --bg-secondary: #171515;
-  --bg-card: rgba(23, 21, 21, 0.9);
-  --bg-card-hover: rgba(31, 28, 28, 0.95);
-  --border-glow: rgba(0, 255, 200, 0.1);
-  --border-glow-hover: rgba(0, 255, 200, 0.2);
+  --bg-sidebar: #131111;
+  --bg-card: linear-gradient(135deg, #171515, #1F1C1C);
+  --border: rgba(255, 255, 255, 0.08);
+  --text-primary: #FCFAFA;
+  --text-secondary: #B3AAA3;
+  --text-muted: #6B6462;
+  --accent: #00ffc8;
+  --accent-warm: #FD3300;
+  --pending: rgba(255, 255, 255, 0.05);
+
+  /* Surface colors */
+  --surface-base: #0D0C0C;
+  --surface-elevated: #1F1C1C;
+  --surface-hover: #2A2626;
+
+  /* Semantic colors */
   --neon-cyan: #00ffc8;
   --neon-purple: #a855f7;
   --neon-blue: #3b82f6;
   --neon-amber: #f59e0b;
   --neon-red: #ef4444;
   --neon-green: #22c55e;
-  --text-primary: #FCFAFA;
-  --text-secondary: #B3AAA3;
-  --text-muted: #6B6462;
+
+  /* Glass border */
   --glass-border: rgba(179, 170, 163, 0.08);
 
-  /* Surface colors */
-  --surface-base: #0D0C0C;
-  --surface-elevated: #1F1C1C;
-  --surface-hover: #2A2626;
+  /* Layout */
+  --sidebar-width: 220px;
 }
 
 * {
@@ -45,31 +53,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Section labels between card groups */
-.section-label {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 28px;
-}
-
-.section-label::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, var(--glass-border), transparent);
-}
-
-.section-label span {
-  font-family: 'Orbitron', sans-serif;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-/* Background grid effect — warm tones, 40x40 at 3% */
+/* Background grid effect -- warm tones, 40x40 at 3% */
 body::before {
   content: '';
   position: fixed;
@@ -85,7 +69,7 @@ body::before {
   z-index: 0;
 }
 
-/* Scrollbar styling — warm tones */
+/* Scrollbar styling -- warm tones */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -131,17 +115,6 @@ body::before {
   }
 }
 
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
 @keyframes shimmer {
   0% {
     background-position: -200% 0;
@@ -159,18 +132,12 @@ body::before {
   animation: pulseGlow 3s ease-in-out infinite;
 }
 
-.animate-slide-in-left {
-  animation: slideInLeft 0.5s ease-out forwards;
-}
-
-/* Staggered animation delays — 100ms stagger */
+/* Staggered animation delays */
 .delay-100 { animation-delay: 100ms; }
 .delay-200 { animation-delay: 200ms; }
 .delay-300 { animation-delay: 300ms; }
 .delay-400 { animation-delay: 400ms; }
 .delay-500 { animation-delay: 500ms; }
-.delay-600 { animation-delay: 600ms; }
-.delay-700 { animation-delay: 700ms; }
 
 /* North Star glow effect */
 .north-star-text {
@@ -183,7 +150,7 @@ body::before {
   filter: drop-shadow(0 0 20px rgba(0, 255, 200, 0.3));
 }
 
-/* Glass card base — SSP warm gradient */
+/* Glass card base -- SSP warm gradient */
 .glass-card {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -191,23 +158,15 @@ body::before {
   border: 1px solid rgba(179, 170, 163, 0.08);
   border-radius: 16px;
   overflow: hidden;
-  transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+  transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 .glass-card:hover {
   border-color: rgba(0, 255, 200, 0.12);
   box-shadow: 0 0 30px rgba(0, 255, 200, 0.03);
-  transform: translateY(-2px);
 }
 
-/* Center the page */
-main {
-  max-width: 1440px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* Metric values — monospace with tabular nums */
+/* Metric values -- monospace with tabular nums */
 .metric-value {
   font-family: 'JetBrains Mono', monospace;
   font-variant-numeric: tabular-nums;
@@ -223,12 +182,6 @@ main {
   color: var(--text-secondary);
 }
 
-/* Verified data */
-.data-verified {
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
 /* Pending / unconnected data */
 .data-pending {
   color: var(--text-muted);
@@ -239,20 +192,21 @@ main {
   text-align: center;
 }
 
-/* Neon progress bar */
-.neon-progress {
-  position: relative;
-  overflow: hidden;
-  border-radius: 4px;
+/* Toast notification */
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.neon-progress::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  animation: shimmer 2s linear infinite;
+@keyframes toastOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(20px); }
+}
+
+.toast-enter {
+  animation: toastIn 0.3s ease-out forwards;
+}
+
+.toast-exit {
+  animation: toastOut 0.3s ease-in forwards;
 }

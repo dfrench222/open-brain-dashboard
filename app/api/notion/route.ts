@@ -10,10 +10,13 @@ interface NotionPage {
   parent?: { type: string; database_id?: string };
 }
 
-interface NotionResult {
+interface NotionTitleProp {
   title?: Array<{ plain_text: string }>;
-  Name?: { title?: Array<{ plain_text: string }> };
-  Task?: { title?: Array<{ plain_text: string }> };
+}
+
+interface NotionStatusProp {
+  status?: { name: string };
+  select?: { name: string };
 }
 
 export async function GET() {
@@ -21,7 +24,7 @@ export async function GET() {
 
   if (!token) {
     return NextResponse.json(
-      { error: "Notion API token not configured", pages: [] },
+      { error: "Notion API token not configured", pages: [], has_data: false },
       { status: 200 }
     );
   }
@@ -44,15 +47,25 @@ export async function GET() {
 
     const data = await res.json();
     const pages = (data.results || []).map((p: NotionPage) => {
-      // Extract title from various possible property structures
-      const props = p.properties as Record<string, NotionResult> | undefined;
+      const props = p.properties as Record<string, NotionTitleProp & NotionStatusProp> | undefined;
       let title = "Untitled";
+      let status = "";
+
       if (props) {
-        const titleProp =
-          props.title || props.Name || props.Task;
+        // Extract title from various property structures
+        const titleProp = props.title || props.Name || props.Task;
         if (titleProp && "title" in titleProp && titleProp.title) {
-          title =
-            titleProp.title.map((t: { plain_text: string }) => t.plain_text).join("") || "Untitled";
+          title = titleProp.title.map((t: { plain_text: string }) => t.plain_text).join("") || "Untitled";
+        }
+
+        // Extract status
+        const statusProp = props.Status || props.status;
+        if (statusProp) {
+          if ("status" in statusProp && statusProp.status) {
+            status = statusProp.status.name;
+          } else if ("select" in statusProp && statusProp.select) {
+            status = statusProp.select.name;
+          }
         }
       }
 
@@ -60,6 +73,7 @@ export async function GET() {
         id: p.id,
         type: p.object,
         title,
+        status,
         url: p.url,
         created: p.created_time,
         updated: p.last_edited_time,
@@ -70,40 +84,10 @@ export async function GET() {
     return NextResponse.json({ pages, has_data: pages.length > 0 });
   } catch (err) {
     console.error("Notion fetch error:", err);
-    // Return realistic fallback data for JL admin tasks
     return NextResponse.json({
-      pages: [
-        {
-          id: "fallback-1",
-          type: "page",
-          title: "Verify March restitution payment",
-          workspace: "jumm-life",
-          status: "in-progress",
-        },
-        {
-          id: "fallback-2",
-          type: "page",
-          title: "Penny tuition payment confirmation",
-          workspace: "jumm-life",
-          status: "pending",
-        },
-        {
-          id: "fallback-3",
-          type: "page",
-          title: "Brian birthday gift planning",
-          workspace: "jumm-life",
-          status: "upcoming",
-        },
-        {
-          id: "fallback-4",
-          type: "page",
-          title: "Update Obsidian backup SOP",
-          workspace: "jumm-life",
-          status: "backlog",
-        },
-      ],
+      pages: [],
       has_data: false,
-      source: "fallback",
+      error: "Failed to fetch from Notion",
     });
   }
 }

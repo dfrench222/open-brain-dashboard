@@ -10,8 +10,7 @@ interface Quote {
 }
 
 const fallbackQuote: Quote = {
-  quote_text:
-    "Whatever you want in life, give it away first.",
+  quote_text: "Whatever you want in life, give it away first.",
   source_title: "Affirmations Of Truth",
   source_author: "Kevin Trudeau",
   category: "giving",
@@ -26,86 +25,53 @@ export default function MorningAnchor() {
       .then((data) => {
         if (data.quote_text) setQuote(data);
       })
-      .catch(() => {
-        // Keep fallback
-      });
+      .catch(() => {});
   }, []);
 
   return (
-    <section className="animate-fade-in-up relative pt-10 md:pt-14 pb-2">
+    <section className="animate-fade-in-up">
       <div
-        className="max-w-[1440px] mx-auto rounded-2xl p-8 md:p-12 relative overflow-hidden"
+        className="rounded-2xl p-8 md:p-10 relative overflow-hidden"
         style={{
           background: "linear-gradient(135deg, rgba(0,255,200,0.03) 0%, rgba(168,85,247,0.03) 50%, rgba(0,255,200,0.03) 100%)",
-          border: "1px solid rgba(179, 170, 163, 0.08)",
+          border: "1px solid var(--border)",
         }}
       >
-        {/* Decorative corner accents */}
-        <div
-          className="absolute top-0 left-0 w-20 h-20"
-          style={{
-            borderTop: "2px solid var(--neon-cyan)",
-            borderLeft: "2px solid var(--neon-cyan)",
-            borderTopLeftRadius: "16px",
-            opacity: 0.3,
-          }}
-        />
-        <div
-          className="absolute bottom-0 right-0 w-20 h-20"
-          style={{
-            borderBottom: "2px solid var(--neon-purple)",
-            borderRight: "2px solid var(--neon-purple)",
-            borderBottomRightRadius: "16px",
-            opacity: 0.3,
-          }}
-        />
-
         {/* North Star */}
-        <div className="text-center" style={{ marginBottom: "32px" }}>
+        <div className="text-center mb-8">
           <p
-            className="text-xs uppercase mb-5"
-            style={{
-              color: "var(--text-muted)",
-              fontFamily: "'Orbitron', sans-serif",
-              fontSize: "0.65rem",
-              letterSpacing: "0.3em",
-            }}
+            className="text-xs uppercase mb-4 tracking-widest font-medium"
+            style={{ color: "var(--text-muted)", letterSpacing: "0.2em", fontSize: "0.65rem" }}
           >
             North Star Principle
           </p>
           <h2
-            className="north-star-text text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight"
-            style={{ fontFamily: "'Orbitron', sans-serif" }}
+            className="north-star-text text-xl sm:text-2xl md:text-3xl font-bold leading-tight"
           >
             &ldquo;Whatever you want in life &mdash; give it away first.&rdquo;
           </h2>
         </div>
 
         {/* Divider */}
-        <div className="flex items-center justify-center gap-4" style={{ margin: "32px 0" }}>
-          <div className="h-px flex-1 max-w-[100px]" style={{ background: "linear-gradient(90deg, transparent, var(--neon-cyan))" }} />
+        <div className="flex items-center justify-center gap-4 my-6">
+          <div className="h-px flex-1 max-w-[80px]" style={{ background: "linear-gradient(90deg, transparent, var(--accent))" }} />
           <div
-            className="w-2 h-2 rotate-45"
-            style={{ background: "var(--neon-cyan)", boxShadow: "0 0 10px var(--neon-cyan)" }}
+            className="w-1.5 h-1.5 rotate-45"
+            style={{ background: "var(--accent)", boxShadow: "0 0 8px var(--accent)" }}
           />
-          <div className="h-px flex-1 max-w-[100px]" style={{ background: "linear-gradient(270deg, transparent, var(--neon-cyan))" }} />
+          <div className="h-px flex-1 max-w-[80px]" style={{ background: "linear-gradient(270deg, transparent, var(--accent))" }} />
         </div>
 
         {/* Daily Quote */}
         <div className="text-center">
           <p
-            className="text-xs uppercase mb-4"
-            style={{
-              color: "var(--text-muted)",
-              fontFamily: "'Orbitron', sans-serif",
-              fontSize: "0.6rem",
-              letterSpacing: "0.3em",
-            }}
+            className="text-xs uppercase mb-3 tracking-widest font-medium"
+            style={{ color: "var(--text-muted)", letterSpacing: "0.2em", fontSize: "0.6rem" }}
           >
             Daily Wisdom &mdash; GuruKev Lessons
           </p>
           <blockquote
-            className="text-lg sm:text-xl italic max-w-2xl mx-auto leading-relaxed"
+            className="text-base sm:text-lg italic max-w-2xl mx-auto leading-relaxed"
             style={{ color: "var(--text-secondary)", lineHeight: "1.7" }}
           >
             &ldquo;{quote.quote_text}&rdquo;

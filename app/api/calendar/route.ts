@@ -1,109 +1,28 @@
 import { NextResponse } from "next/server";
 
-// Mock calendar data with realistic upcoming events
-// Will be wired to real Google Calendar API when server-side OAuth is set up
+// Google Calendar integration
+// Needs Google service account setup -- Don will create this separately
+// When ready, set GOOGLE_SERVICE_ACCOUNT env var with the service account JSON key
+// Then share calendars with the service account email
+
 export async function GET() {
-  const now = new Date();
+  const serviceAccount = process.env.GOOGLE_SERVICE_ACCOUNT;
 
-  const events = [
-    {
-      id: "1",
-      title: "PG Weekly Standup",
-      description: "Performance Golf leadership sync with Brixton",
-      start_time: getNextWeekday(now, 1, 10, 0), // Monday 10am
-      end_time: getNextWeekday(now, 1, 11, 0),
-      location: "Zoom",
-      workspace: "performance-golf",
-      type: "meeting",
-    },
-    {
-      id: "2",
-      title: "PG1 Presale Review",
-      description: "Review PG1 presale campaign metrics and creative",
-      start_time: getNextWeekday(now, 2, 14, 0), // Tuesday 2pm
-      end_time: getNextWeekday(now, 2, 15, 0),
-      location: "Zoom",
-      workspace: "performance-golf",
-      type: "meeting",
-    },
-    {
-      id: "3",
-      title: "Rich Schefren Strategy Call",
-      description: "Monthly strategic advisory session",
-      start_time: getNextWeekday(now, 3, 11, 0), // Wednesday 11am
-      end_time: getNextWeekday(now, 3, 12, 0),
-      location: "Zoom",
-      workspace: "jumm-life",
-      type: "meeting",
-    },
-    {
-      id: "4",
-      title: "Ben Marcoux - Perfect Pitch Sync",
-      description: "AI workflow review and publishing pipeline",
-      start_time: getNextWeekday(now, 4, 15, 0), // Thursday 3pm
-      end_time: getNextWeekday(now, 4, 16, 0),
-      location: "Zoom",
-      workspace: "jumm-life",
-      type: "meeting",
-    },
-    {
-      id: "5",
-      title: "Penny FaceTime",
-      description: "Weekly video call with Penny in Rome",
-      start_time: getNextWeekday(now, 6, 10, 0), // Saturday 10am
-      end_time: getNextWeekday(now, 6, 10, 30),
-      location: "FaceTime",
-      workspace: "jumm-life",
-      type: "family",
-    },
-    {
-      id: "6",
-      title: "GIN Global Call",
-      description: "Global Information Network community call",
-      start_time: addDays(now, 8, 19, 0),
-      end_time: addDays(now, 8, 20, 30),
-      location: "Zoom",
-      workspace: "jumm-life",
-      type: "community",
-    },
-    {
-      id: "7",
-      title: "PG Creative Review",
-      description: "Review ad creatives for upcoming launches",
-      start_time: addDays(now, 10, 13, 0),
-      end_time: addDays(now, 10, 14, 0),
-      location: "Zoom",
-      workspace: "performance-golf",
-      type: "meeting",
-    },
-  ];
+  if (!serviceAccount) {
+    return NextResponse.json({
+      events: [],
+      connected: false,
+      message: "Connect Google Calendar",
+    });
+  }
 
-  return NextResponse.json(events);
-}
+  // Future: Use Google Calendar API with service account
+  // GET https://www.googleapis.com/calendar/v3/calendars/{calendarId}/events
+  // with timeMin={today} and timeMax={today + 7 days}
 
-function getNextWeekday(
-  from: Date,
-  targetDay: number,
-  hour: number,
-  minute: number
-): string {
-  const result = new Date(from);
-  const currentDay = result.getDay();
-  let daysToAdd = targetDay - currentDay;
-  if (daysToAdd <= 0) daysToAdd += 7;
-  result.setDate(result.getDate() + daysToAdd);
-  result.setHours(hour, minute, 0, 0);
-  return result.toISOString();
-}
-
-function addDays(
-  from: Date,
-  days: number,
-  hour: number,
-  minute: number
-): string {
-  const result = new Date(from);
-  result.setDate(result.getDate() + days);
-  result.setHours(hour, minute, 0, 0);
-  return result.toISOString();
+  return NextResponse.json({
+    events: [],
+    connected: false,
+    message: "Google Calendar setup in progress",
+  });
 }

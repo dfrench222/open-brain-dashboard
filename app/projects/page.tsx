@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import GlassCard from "../ui/GlassCard";
-import NeonText from "../ui/NeonText";
-import StatusBadge from "../ui/StatusBadge";
+import CommandBar from "@/components/CommandBar";
+import StatusBadge from "@/components/ui/StatusBadge";
 
 interface Project {
   id: string;
@@ -16,13 +15,12 @@ interface Project {
 }
 
 const priorityColors: Record<string, string> = {
-  critical: "var(--neon-red, #ef4444)",
+  critical: "var(--neon-red)",
   high: "var(--neon-amber)",
-  medium: "var(--neon-cyan)",
+  medium: "var(--accent)",
   low: "var(--text-muted)",
 };
 
-// Map DB status values to StatusBadge values
 function mapStatus(status: string): "active" | "planning" | "building" | "paused" | "completed" {
   if (status === "active") return "active";
   if (status === "paused") return "paused";
@@ -31,14 +29,14 @@ function mapStatus(status: string): "active" | "planning" | "building" | "paused
 }
 
 const fallbackProjects: Project[] = [
-  { id: "1", name: "Performance Golf", description: "Direct response golf company — $164M target", status: "active", priority: "critical", workspace: "performance-golf", owner: "Don French" },
+  { id: "1", name: "Performance Golf", description: "Direct response golf company -- $164M target", status: "active", priority: "critical", workspace: "performance-golf", owner: "Don French" },
   { id: "2", name: "Open Brain", description: "Life Operating System dashboard", status: "active", priority: "critical", workspace: "shared", owner: "Don French" },
   { id: "3", name: "De French 2.0", description: "Personal brand, speaking, consulting", status: "active", priority: "high", workspace: "jumm-life", owner: "Don French" },
   { id: "4", name: "Perfect Pitch Publishing", description: "Publishing venture", status: "active", priority: "medium", workspace: "jumm-life", owner: "Don French" },
   { id: "5", name: "Freedom Factor", description: "Prison reform initiative", status: "paused", priority: "medium", workspace: "jumm-life", owner: "Don French" },
 ];
 
-export default function ActiveProjects() {
+export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>(fallbackProjects);
 
   useEffect(() => {
@@ -47,56 +45,25 @@ export default function ActiveProjects() {
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) setProjects(data);
       })
-      .catch(() => {
-        // Keep fallback
-      });
+      .catch(() => {});
   }, []);
 
   return (
-    <GlassCard delay={500}>
-      <div className="flex items-center gap-3 mb-8">
-        <div
-          className="w-8 h-8 rounded-lg flex items-center justify-center"
-          style={{ background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.2)" }}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--neon-amber)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-            <line x1="3" y1="9" x2="21" y2="9" />
-            <line x1="9" y1="21" x2="9" y2="9" />
-          </svg>
-        </div>
-        <NeonText size="md" color="var(--neon-amber)">
-          Active Projects
-        </NeonText>
-        <span
-          className="ml-auto text-xs px-2 py-1 rounded-full"
-          style={{
-            color: "var(--neon-amber)",
-            background: "rgba(245,158,11,0.08)",
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: "0.65rem",
-          }}
-        >
-          {projects.length}
-        </span>
-      </div>
+    <div>
+      <CommandBar />
+
+      <h1 className="text-lg font-semibold mb-6" style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
+        Projects
+        <span className="ml-2 text-xs font-normal" style={{ color: "var(--text-muted)" }}>{projects.length} total</span>
+      </h1>
 
       <div className="space-y-4">
         {projects.map((project) => (
-          <div
-            key={project.id}
-            className="p-5 rounded-xl transition-all duration-200 cursor-pointer"
-            style={{
-              background: "rgba(255,255,255,0.02)",
-              border: "1px solid var(--glass-border)",
-            }}
-          >
+          <div key={project.id} className="glass-card p-5">
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
                 <div className="flex items-center gap-2.5">
-                  <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
-                    {project.name}
-                  </span>
+                  <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{project.name}</span>
                   {project.priority && (
                     <span
                       className="w-2 h-2 rounded-full shrink-0"
@@ -108,8 +75,9 @@ export default function ActiveProjects() {
                     />
                   )}
                 </div>
-                <span className="text-xs block mt-1.5" style={{ color: "var(--text-muted)" }}>
-                  {project.description}
+                <span className="text-xs block mt-1.5" style={{ color: "var(--text-muted)" }}>{project.description}</span>
+                <span className="text-xs block mt-1" style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.55rem" }}>
+                  {project.workspace}
                 </span>
               </div>
               <div className="shrink-0">
@@ -119,6 +87,6 @@ export default function ActiveProjects() {
           </div>
         ))}
       </div>
-    </GlassCard>
+    </div>
   );
 }
