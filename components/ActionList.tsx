@@ -21,9 +21,9 @@ interface ActionListProps {
 }
 
 const typeBadgeColors: Record<string, { bg: string; color: string }> = {
-  REQ: { bg: "rgba(239,68,68,0.15)", color: "var(--neon-red)" },
-  "F/U": { bg: "rgba(245,158,11,0.15)", color: "var(--neon-amber)" },
-  TASK: { bg: "rgba(59,130,246,0.15)", color: "var(--neon-blue)" },
+  REQ: { bg: "rgba(239,68,68,0.12)", color: "var(--neon-red)" },
+  "F/U": { bg: "rgba(245,158,11,0.12)", color: "var(--neon-amber)" },
+  TASK: { bg: "rgba(59,130,246,0.12)", color: "var(--neon-blue)" },
 };
 
 export default function ActionList({ items, onComplete }: ActionListProps) {
@@ -32,7 +32,6 @@ export default function ActionList({ items, onComplete }: ActionListProps) {
   const [completingIds, setCompletingIds] = useState<Set<string>>(new Set());
   const [toastMsg, setToastMsg] = useState("");
 
-  // Load dismissed/priorities from localStorage
   useEffect(() => {
     try {
       const dismissed = localStorage.getItem("ob-dismissed");
@@ -74,9 +73,7 @@ export default function ActionList({ items, onComplete }: ActionListProps) {
   };
 
   const handleAct = (item: ActionItem) => {
-    if (item.sourceUrl) {
-      window.open(item.sourceUrl, "_blank");
-    }
+    if (item.sourceUrl) window.open(item.sourceUrl, "_blank");
   };
 
   const handleNudge = () => {
@@ -91,8 +88,7 @@ export default function ActionList({ items, onComplete }: ActionListProps) {
   };
 
   const handleNotYet = (item: ActionItem) => {
-    showToast("Deferred");
-    // Future: update due date in ClickUp
+    showToast("Deferred to tomorrow");
     handleDismiss(item);
   };
 
@@ -104,7 +100,6 @@ export default function ActionList({ items, onComplete }: ActionListProps) {
 
   const visibleItems = items.filter((item) => !dismissedIds.has(item.id));
 
-  // Sort by priority (higher first), then by original order
   const sortedItems = [...visibleItems].sort((a, b) => {
     const pa = priorities[a.id] || 0;
     const pb = priorities[b.id] || 0;
@@ -113,9 +108,15 @@ export default function ActionList({ items, onComplete }: ActionListProps) {
 
   if (sortedItems.length === 0) {
     return (
-      <div className="text-center py-10">
+      <div
+        className="text-center py-12 rounded-2xl"
+        style={{
+          border: "1px dashed rgba(179,170,163,0.12)",
+          background: "rgba(255,255,255,0.01)",
+        }}
+      >
         <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-          No action items
+          No action items -- all clear
         </p>
       </div>
     );
@@ -123,7 +124,7 @@ export default function ActionList({ items, onComplete }: ActionListProps) {
 
   return (
     <div className="relative">
-      <div className="space-y-3">
+      <div className="space-y-4">
         {sortedItems.map((item) => {
           const badge = typeBadgeColors[item.type] || typeBadgeColors.TASK;
           const isCompleting = completingIds.has(item.id);
@@ -132,53 +133,57 @@ export default function ActionList({ items, onComplete }: ActionListProps) {
           return (
             <div
               key={item.id}
-              className="rounded-xl transition-all duration-200"
+              className="rounded-2xl transition-all duration-200"
               style={{
                 background: "linear-gradient(135deg, rgba(23, 21, 21, 0.9) 0%, rgba(31, 28, 28, 0.7) 100%)",
                 border: itemPriority
-                  ? `1px solid rgba(0,255,200,${0.1 + itemPriority * 0.05})`
-                  : "1px solid var(--border)",
+                  ? `1px solid rgba(0,255,200,${0.08 + itemPriority * 0.04})`
+                  : "1px solid var(--glass-border)",
               }}
             >
-              <div className="p-4 flex items-start gap-3">
+              {/* Content */}
+              <div className="p-5 flex items-start gap-4">
                 {/* Type badge */}
                 <span
-                  className="shrink-0 px-2 py-1 rounded text-xs font-bold uppercase mt-0.5"
+                  className="shrink-0 px-2.5 py-1 rounded-md mt-0.5"
                   style={{
                     background: badge.bg,
                     color: badge.color,
                     fontFamily: "'JetBrains Mono', monospace",
                     fontSize: "0.6rem",
+                    fontWeight: 700,
                     letterSpacing: "0.05em",
                   }}
                 >
                   {item.type}
                 </span>
 
-                {/* Content */}
+                {/* Description + meta */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm leading-snug" style={{ color: "var(--text-primary)" }}>
+                  <p
+                    className="text-sm leading-relaxed"
+                    style={{ color: "var(--text-primary)" }}
+                  >
                     {item.description}
                   </p>
-                  <div className="flex items-center gap-3 mt-1.5">
+                  <div className="flex items-center gap-4 mt-2">
                     {item.timeAgo && (
                       <span
-                        className="text-xs metric-value"
-                        style={{ color: "var(--text-muted)", fontSize: "0.6rem" }}
+                        className="metric-value"
+                        style={{ color: "var(--text-muted)", fontSize: "0.65rem" }}
                       >
                         {item.timeAgo}
                       </span>
                     )}
                     <span
-                      className="text-xs"
-                      style={{ color: "var(--text-muted)", fontSize: "0.6rem" }}
+                      style={{ color: "var(--text-muted)", fontSize: "0.65rem" }}
                     >
                       {item.source}
                     </span>
                     {itemPriority && (
                       <span
-                        className="text-xs font-bold metric-value"
-                        style={{ color: "var(--accent)", fontSize: "0.6rem" }}
+                        className="metric-value font-bold"
+                        style={{ color: "var(--accent)", fontSize: "0.65rem" }}
                       >
                         +{itemPriority}
                       </span>
@@ -189,21 +194,20 @@ export default function ActionList({ items, onComplete }: ActionListProps) {
 
               {/* Action buttons */}
               <div
-                className="px-4 pb-3 flex items-center gap-1.5 flex-wrap"
+                className="px-5 pb-4"
                 style={{ borderTop: "1px solid var(--border)" }}
               >
-                <div className="pt-2.5 flex items-center gap-1.5 flex-wrap">
+                <div className="pt-3 flex items-center gap-2 flex-wrap">
                   {/* DONE */}
                   {item.sourceType === "clickup" && item.sourceId && (
                     <button
                       onClick={() => handleDone(item)}
                       disabled={isCompleting}
-                      className="px-2.5 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all duration-150"
+                      className="action-btn"
                       style={{
-                        background: "rgba(34,197,94,0.1)",
+                        background: "rgba(34,197,94,0.08)",
                         color: "var(--neon-green)",
-                        border: "1px solid rgba(34,197,94,0.2)",
-                        fontSize: "0.6rem",
+                        borderColor: "rgba(34,197,94,0.18)",
                         opacity: isCompleting ? 0.5 : 1,
                       }}
                     >
@@ -215,12 +219,11 @@ export default function ActionList({ items, onComplete }: ActionListProps) {
                   {item.sourceUrl && (
                     <button
                       onClick={() => handleAct(item)}
-                      className="px-2.5 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all duration-150"
+                      className="action-btn"
                       style={{
-                        background: "rgba(59,130,246,0.1)",
+                        background: "rgba(59,130,246,0.08)",
                         color: "var(--neon-blue)",
-                        border: "1px solid rgba(59,130,246,0.2)",
-                        fontSize: "0.6rem",
+                        borderColor: "rgba(59,130,246,0.18)",
                       }}
                     >
                       ACT
@@ -230,44 +233,52 @@ export default function ActionList({ items, onComplete }: ActionListProps) {
                   {/* NUDGE */}
                   <button
                     onClick={handleNudge}
-                    className="px-2.5 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all duration-150"
+                    className="action-btn"
                     style={{
-                      background: "rgba(245,158,11,0.1)",
+                      background: "rgba(245,158,11,0.08)",
                       color: "var(--neon-amber)",
-                      border: "1px solid rgba(245,158,11,0.2)",
-                      fontSize: "0.6rem",
+                      borderColor: "rgba(245,158,11,0.18)",
                     }}
                   >
                     NUDGE
                   </button>
+
+                  {/* Separator */}
+                  <span
+                    className="w-px h-4 mx-1"
+                    style={{ background: "var(--border)" }}
+                  />
 
                   {/* Priority: +1 +2 +3 */}
                   {[1, 2, 3].map((level) => (
                     <button
                       key={level}
                       onClick={() => handlePriority(item, level)}
-                      className="px-2 py-1.5 rounded-lg text-xs font-bold transition-all duration-150"
+                      className="action-btn"
                       style={{
-                        background: itemPriority === level ? "rgba(0,255,200,0.15)" : "rgba(255,255,255,0.04)",
+                        background: itemPriority === level ? "rgba(0,255,200,0.12)" : "rgba(255,255,255,0.03)",
                         color: itemPriority === level ? "var(--accent)" : "var(--text-muted)",
-                        border: itemPriority === level ? "1px solid rgba(0,255,200,0.25)" : "1px solid var(--border)",
-                        fontFamily: "'JetBrains Mono', monospace",
-                        fontSize: "0.6rem",
+                        borderColor: itemPriority === level ? "rgba(0,255,200,0.2)" : "var(--border)",
                       }}
                     >
                       +{level}
                     </button>
                   ))}
 
+                  {/* Separator */}
+                  <span
+                    className="w-px h-4 mx-1"
+                    style={{ background: "var(--border)" }}
+                  />
+
                   {/* NOT YET */}
                   <button
                     onClick={() => handleNotYet(item)}
-                    className="px-2.5 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all duration-150"
+                    className="action-btn"
                     style={{
-                      background: "rgba(255,255,255,0.04)",
+                      background: "rgba(255,255,255,0.03)",
                       color: "var(--text-muted)",
-                      border: "1px solid var(--border)",
-                      fontSize: "0.6rem",
+                      borderColor: "var(--border)",
                     }}
                   >
                     NOT YET
@@ -276,12 +287,12 @@ export default function ActionList({ items, onComplete }: ActionListProps) {
                   {/* X */}
                   <button
                     onClick={() => handleDismiss(item)}
-                    className="px-2 py-1.5 rounded-lg text-xs font-bold transition-all duration-150"
+                    className="action-btn"
                     style={{
-                      background: "rgba(255,255,255,0.04)",
+                      background: "rgba(255,255,255,0.03)",
                       color: "var(--text-muted)",
-                      border: "1px solid var(--border)",
-                      fontSize: "0.6rem",
+                      borderColor: "var(--border)",
+                      padding: "6px 10px",
                     }}
                   >
                     X
@@ -296,13 +307,15 @@ export default function ActionList({ items, onComplete }: ActionListProps) {
       {/* Toast */}
       {toastMsg && (
         <div
-          className="fixed bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 px-5 py-3 rounded-xl text-sm toast-enter z-50"
+          className="fixed bottom-24 md:bottom-8 left-1/2 px-5 py-3 rounded-xl text-sm toast-enter z-50"
           style={{
-            background: "rgba(19,17,17,0.95)",
-            border: "1px solid rgba(0,255,200,0.2)",
+            background: "rgba(17,16,16,0.96)",
+            border: "1px solid rgba(0,255,200,0.15)",
             color: "var(--accent)",
             boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
             whiteSpace: "nowrap",
+            transform: "translateX(-50%)",
+            fontSize: "0.8rem",
           }}
         >
           {toastMsg}

@@ -37,36 +37,58 @@ export default function KnowledgePage() {
     <div>
       <CommandBar />
 
-      <h1 className="text-lg font-semibold mb-6" style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
+      <h1
+        className="text-lg font-semibold mb-8"
+        style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}
+      >
         Knowledge Base
       </h1>
 
       {/* Stats */}
       <section className="mb-10">
-        <h2 className="text-xs uppercase tracking-widest font-semibold mb-5" style={{ color: "var(--text-secondary)", letterSpacing: "0.1em" }}>
-          Supabase Stats
-        </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <h2 className="section-heading mb-5">Supabase Stats</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
           {loading ? (
             [1, 2, 3, 4].map((i) => (
-              <div key={i} className="glass-card p-5 text-center">
-                <span className="text-sm block italic" style={{ color: "var(--text-muted)" }}>Loading...</span>
+              <div
+                key={i}
+                className="glass-card animate-fade-in-up"
+                style={{ padding: "24px", animationDelay: `${i * 100}ms`, opacity: 0 }}
+              >
+                <span className="kpi-label block mb-3">Loading...</span>
+                <div className="h-6 w-12 rounded" style={{ background: "rgba(255,255,255,0.04)" }} />
               </div>
             ))
           ) : hasData ? (
             <>
-              <StatBox label="Thoughts" value={stats!.thoughts} color="var(--accent)" />
-              <StatBox label="People Indexed" value={stats!.people} color="var(--neon-green)" />
-              <StatBox label="Projects" value={stats!.projects} color="var(--neon-blue)" />
-              <StatBox label="Daily Quotes" value={stats!.quotes} color="var(--neon-purple)" />
+              <StatBox label="Thoughts" value={stats!.thoughts} color="var(--accent)" delay={0} />
+              <StatBox label="People Indexed" value={stats!.people} color="var(--neon-green)" delay={1} />
+              <StatBox label="Projects" value={stats!.projects} color="var(--neon-blue)" delay={2} />
+              <StatBox label="Daily Quotes" value={stats!.quotes} color="var(--neon-purple)" delay={3} />
             </>
           ) : (
             [1, 2, 3, 4].map((i) => {
               const labels = ["Thoughts", "People", "Projects", "Quotes"];
               return (
-                <div key={i} className="glass-card p-5 text-center" style={{ border: "1px dashed rgba(179,170,163,0.15)" }}>
-                  <span className="text-sm block italic mb-1" style={{ color: "var(--text-muted)" }}>Pending</span>
-                  <span className="text-xs kpi-label">{labels[i - 1]}</span>
+                <div
+                  key={i}
+                  className="text-center animate-fade-in-up"
+                  style={{
+                    padding: "24px",
+                    border: "1px dashed rgba(179,170,163,0.12)",
+                    borderRadius: "16px",
+                    background: "rgba(255,255,255,0.01)",
+                    animationDelay: `${i * 100}ms`,
+                    opacity: 0,
+                  }}
+                >
+                  <span
+                    className="text-sm block italic mb-2"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    Pending
+                  </span>
+                  <span className="kpi-label">{labels[i - 1]}</span>
                 </div>
               );
             })
@@ -76,26 +98,33 @@ export default function KnowledgePage() {
 
       {/* Integration Status */}
       <section className="mb-10">
-        <h2 className="text-xs uppercase tracking-widest font-semibold mb-5" style={{ color: "var(--text-secondary)", letterSpacing: "0.1em" }}>
-          Integration Status
-        </h2>
+        <h2 className="section-heading mb-5">Integration Status</h2>
         <div className="space-y-3">
-          {integrations.map((item) => (
+          {integrations.map((item, idx) => (
             <div
               key={item.name}
-              className="flex items-center justify-between p-4 rounded-xl"
+              className="flex items-center justify-between p-4 rounded-xl animate-fade-in-up"
               style={{
-                background: "rgba(255,255,255,0.02)",
-                border: item.connected ? "1px solid var(--border)" : "1px dashed rgba(179,170,163,0.15)",
+                background: "rgba(255,255,255,0.015)",
+                border: item.connected
+                  ? "1px solid var(--glass-border)"
+                  : "1px dashed rgba(179,170,163,0.12)",
+                animationDelay: `${idx * 80}ms`,
+                opacity: 0,
               }}
             >
-              <span className="text-sm" style={{ color: item.connected ? "var(--text-secondary)" : "var(--text-muted)" }}>
+              <span
+                className="text-sm"
+                style={{
+                  color: item.connected ? "var(--text-secondary)" : "var(--text-muted)",
+                }}
+              >
                 {item.name}
               </span>
               <div className="flex items-center gap-3">
                 <span
-                  className="text-xs metric-value"
-                  style={{ color: "var(--text-muted)", fontSize: "0.65rem" }}
+                  className="metric-value"
+                  style={{ color: "var(--text-muted)", fontSize: "0.7rem" }}
                 >
                   {item.status}
                 </span>
@@ -114,17 +143,42 @@ export default function KnowledgePage() {
   );
 }
 
-function StatBox({ label, value, color }: { label: string; value: number | null; color: string }) {
+function StatBox({
+  label,
+  value,
+  color,
+  delay,
+}: {
+  label: string;
+  value: number | null;
+  color: string;
+  delay: number;
+}) {
   return (
-    <div className="glass-card p-5 text-center">
+    <div
+      className="glass-card animate-fade-in-up"
+      style={{
+        padding: "24px",
+        animationDelay: `${delay * 100}ms`,
+        opacity: 0,
+      }}
+    >
+      <span className="kpi-label block mb-3">{label}</span>
       {value !== null ? (
-        <span className="text-2xl font-bold block mb-1 metric-value" style={{ color, textShadow: `0 0 10px ${color}30` }}>
+        <span
+          className="text-2xl font-bold block metric-value"
+          style={{ color, textShadow: `0 0 12px ${color}25` }}
+        >
           {value.toLocaleString()}
         </span>
       ) : (
-        <span className="text-sm block mb-1 italic" style={{ color: "var(--text-muted)" }}>N/A</span>
+        <span
+          className="text-lg block italic"
+          style={{ color: "var(--text-muted)", opacity: 0.5 }}
+        >
+          N/A
+        </span>
       )}
-      <span className="text-xs block kpi-label">{label}</span>
     </div>
   );
 }

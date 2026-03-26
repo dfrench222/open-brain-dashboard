@@ -11,13 +11,13 @@ export default function SidebarWrapper({ children }: { children: React.ReactNode
 
   useEffect(() => {
     if (isLoginPage) return;
-    // Fetch task count for the sidebar badge
     fetch("/api/clickup")
       .then((res) => res.json())
       .then((data) => {
         if (data.tasks && Array.isArray(data.tasks)) {
           const active = data.tasks.filter(
-            (t: { status: string }) => t.status !== "Closed" && t.status !== "hold for launch"
+            (t: { status: string }) =>
+              t.status !== "Closed" && t.status !== "hold for launch"
           );
           setTaskCount(active.length);
         }
@@ -32,12 +32,26 @@ export default function SidebarWrapper({ children }: { children: React.ReactNode
   return (
     <div className="relative min-h-screen" style={{ zIndex: 1 }}>
       <Sidebar taskCount={taskCount} />
-      {/* Main content area offset by sidebar width on desktop */}
       <main
-        className="md:ml-[220px] pb-20 md:pb-8"
-        style={{ minHeight: "100vh" }}
+        className="pb-24 md:pb-10"
+        style={{
+          marginLeft: "0",
+          minHeight: "100vh",
+        }}
       >
-        <div className="max-w-[1200px] mx-auto px-4 md:px-8 pt-6 md:pt-8">
+        <div
+          className="mx-auto px-5 pt-6 md:pt-8 md:px-10 lg:px-12"
+          style={{
+            marginLeft: "0",
+            maxWidth: "1200px",
+          }}
+        >
+          <style>{`
+            @media (min-width: 768px) {
+              main { margin-left: var(--sidebar-width) !important; }
+              main > div { margin-left: 0 !important; }
+            }
+          `}</style>
           {children}
         </div>
       </main>

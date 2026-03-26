@@ -22,6 +22,18 @@ const relationshipColors: Record<string, string> = {
   mentor: "var(--neon-purple)",
 };
 
+const relationshipBg: Record<string, string> = {
+  "business-partner": "rgba(59,130,246,0.1)",
+  family: "rgba(34,197,94,0.1)",
+  mentor: "rgba(168,85,247,0.1)",
+};
+
+const relationshipBorder: Record<string, string> = {
+  "business-partner": "rgba(59,130,246,0.2)",
+  family: "rgba(34,197,94,0.2)",
+  mentor: "rgba(168,85,247,0.2)",
+};
+
 const contactInfo: Record<string, { phone?: string; whatsapp?: string }> = {
   "Brixton Albert": { phone: "7178217833" },
   "Caitlin French": { phone: "8602622226" },
@@ -69,12 +81,22 @@ export default function PeoplePage() {
     <div>
       <CommandBar />
 
-      <h1 className="text-lg font-semibold mb-6" style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
-        People
-        <span className="ml-2 text-xs font-normal" style={{ color: "var(--text-muted)" }}>{people.length} contacts</span>
-      </h1>
+      <div className="flex items-center gap-3 mb-8">
+        <h1
+          className="text-lg font-semibold"
+          style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}
+        >
+          People
+        </h1>
+        <span
+          className="metric-value"
+          style={{ color: "var(--text-muted)", fontSize: "0.7rem" }}
+        >
+          {people.length} contacts
+        </span>
+      </div>
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         {people.map((person) => {
           const color = relationshipColors[person.relationship] || "var(--accent)";
           const isExpanded = expandedId === person.id;
@@ -87,25 +109,38 @@ export default function PeoplePage() {
               className="glass-card transition-all duration-200 cursor-pointer"
               onClick={() => setExpandedId(isExpanded ? null : person.id)}
             >
-              <div className="flex items-center gap-4 p-4">
+              <div className="flex items-center gap-4 p-5">
                 <div
-                  className="w-11 h-11 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-                  style={{ background: `${color}12`, color, border: `1px solid ${color}25`, fontSize: "0.65rem" }}
+                  className="w-11 h-11 rounded-full flex items-center justify-center font-bold shrink-0"
+                  style={{
+                    background: relationshipBg[person.relationship] || "rgba(0,255,200,0.1)",
+                    color,
+                    border: `1px solid ${relationshipBorder[person.relationship] || "rgba(0,255,200,0.2)"}`,
+                    fontSize: "0.7rem",
+                  }}
                 >
                   {getInitials(person.name)}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <span className="text-sm font-medium block" style={{ color: "var(--text-primary)" }}>{person.name}</span>
-                  <span className="text-xs block mt-0.5" style={{ color: "var(--text-muted)" }}>
+                  <span className="text-sm font-medium block" style={{ color: "var(--text-primary)" }}>
+                    {person.name}
+                  </span>
+                  <span className="text-xs block mt-1" style={{ color: "var(--text-muted)", fontSize: "0.75rem" }}>
                     {person.role}{person.location ? ` -- ${person.location}` : ""}
                   </span>
                 </div>
                 <div className="text-right shrink-0">
-                  <span className="text-xs block" style={{ color, fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem" }}>
+                  <span
+                    className="block metric-value"
+                    style={{ color, fontSize: "0.65rem" }}
+                  >
                     {formatRel(person.relationship)}
                   </span>
                   {person.interaction_count > 0 && (
-                    <span className="text-xs block mt-1" style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.55rem" }}>
+                    <span
+                      className="block mt-1 metric-value"
+                      style={{ color: "var(--text-muted)", fontSize: "0.6rem" }}
+                    >
                       {person.interaction_count.toLocaleString()} msgs
                     </span>
                   )}
@@ -113,25 +148,60 @@ export default function PeoplePage() {
               </div>
 
               {isExpanded && (
-                <div className="px-4 pb-4" style={{ borderTop: "1px solid var(--border)" }} onClick={(e) => e.stopPropagation()}>
-                  <div className="pt-3 flex items-center gap-2 flex-wrap">
+                <div
+                  className="px-5 pb-5"
+                  style={{ borderTop: "1px solid var(--border)" }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="pt-4 flex items-center gap-2 flex-wrap">
                     {phone && (
-                      <a href={`tel:${phone}`} className="px-3 py-1.5 rounded-lg text-xs" style={{ color: "var(--neon-green)", background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.15)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem" }}>
+                      <a
+                        href={`tel:${phone}`}
+                        className="action-btn"
+                        style={{
+                          color: "var(--neon-green)",
+                          background: "rgba(34,197,94,0.06)",
+                          borderColor: "rgba(34,197,94,0.15)",
+                        }}
+                      >
                         Call
                       </a>
                     )}
                     {phone && (
-                      <a href={`sms:${phone}`} className="px-3 py-1.5 rounded-lg text-xs" style={{ color: "var(--neon-blue)", background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.15)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem" }}>
+                      <a
+                        href={`sms:${phone}`}
+                        className="action-btn"
+                        style={{
+                          color: "var(--neon-blue)",
+                          background: "rgba(59,130,246,0.06)",
+                          borderColor: "rgba(59,130,246,0.15)",
+                        }}
+                      >
                         Message
                       </a>
                     )}
                     {whatsapp && (
-                      <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 rounded-lg text-xs" style={{ color: "#25D366", background: "rgba(37,211,102,0.08)", border: "1px solid rgba(37,211,102,0.15)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem" }}>
+                      <a
+                        href={`https://wa.me/${whatsapp}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="action-btn"
+                        style={{
+                          color: "#25D366",
+                          background: "rgba(37,211,102,0.06)",
+                          borderColor: "rgba(37,211,102,0.15)",
+                        }}
+                      >
                         WhatsApp
                       </a>
                     )}
                     {person.notes && (
-                      <span className="text-xs ml-2 italic" style={{ color: "var(--text-muted)" }}>{person.notes}</span>
+                      <span
+                        className="text-xs ml-2 italic"
+                        style={{ color: "var(--text-muted)" }}
+                      >
+                        {person.notes}
+                      </span>
                     )}
                   </div>
                 </div>

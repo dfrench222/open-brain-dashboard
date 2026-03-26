@@ -23,6 +23,12 @@ const tierColors: Record<number, string> = {
   3: "var(--text-muted)",
 };
 
+const tierLabels: Record<number, string> = {
+  1: "Urgent",
+  2: "Important",
+  3: "FYI",
+};
+
 function timeAgo(ts: string): string {
   const diff = Date.now() - new Date(ts).getTime();
   const mins = Math.floor(diff / 60000);
@@ -51,7 +57,6 @@ export default function CommunicationsPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Fetch JL messages from real API
     fetch("/api/slack-jl")
       .then((res) => res.json())
       .then((data) => {
@@ -72,24 +77,34 @@ export default function CommunicationsPage() {
       <CommandBar />
 
       <h1
-        className="text-lg font-semibold mb-6"
+        className="text-lg font-semibold mb-8"
         style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}
       >
         Communications
       </h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Jumm Life Slack */}
         <section>
-          <div className="flex items-center gap-2.5 mb-4 pb-3" style={{ borderBottom: "1px solid rgba(0,255,200,0.1)" }}>
-            <span className="w-2.5 h-2.5 rounded-full" style={{ background: "var(--accent)", boxShadow: "0 0 6px var(--accent)" }} />
-            <span className="text-xs uppercase tracking-wider font-semibold" style={{ color: "var(--accent)", fontSize: "0.7rem" }}>
+          <div className="flex items-center gap-2.5 mb-5 pb-3" style={{ borderBottom: "1px solid rgba(0,255,200,0.08)" }}>
+            <span
+              className="w-2.5 h-2.5 rounded-full shrink-0"
+              style={{ background: "var(--accent)", boxShadow: "0 0 6px var(--accent)" }}
+            />
+            <span
+              className="uppercase tracking-wider font-semibold"
+              style={{ color: "var(--accent)", fontSize: "0.7rem", letterSpacing: "0.08em" }}
+            >
               Jumm Life Slack
             </span>
             {jlMessages.length > 0 && (
               <span
-                className="ml-auto text-xs px-2 py-0.5 rounded-full"
-                style={{ color: "var(--accent)", background: "rgba(0,255,200,0.08)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem" }}
+                className="ml-auto px-2 py-0.5 rounded-full metric-value"
+                style={{
+                  color: "var(--accent)",
+                  background: "rgba(0,255,200,0.06)",
+                  fontSize: "0.6rem",
+                }}
               >
                 {jlMessages.length}
               </span>
@@ -99,50 +114,109 @@ export default function CommunicationsPage() {
           {jlLoading ? (
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="rounded-xl p-4" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border)" }}>
-                  <div className="h-4 w-3/4 rounded" style={{ background: "rgba(255,255,255,0.05)" }} />
+                <div
+                  key={i}
+                  className="rounded-xl p-4 animate-fade-in-up"
+                  style={{
+                    background: "rgba(255,255,255,0.015)",
+                    border: "1px solid var(--glass-border)",
+                    animationDelay: `${i * 100}ms`,
+                    opacity: 0,
+                  }}
+                >
+                  <div className="h-4 w-3/4 rounded" style={{ background: "rgba(255,255,255,0.04)" }} />
                 </div>
               ))}
             </div>
           ) : jlError ? (
             <PendingState label={jlError} connectLabel="Check SLACK_JL_BOT_TOKEN" />
           ) : jlMessages.length === 0 ? (
-            <p className="text-sm italic py-4" style={{ color: "var(--text-muted)" }}>No messages</p>
+            <PendingState label="No messages" />
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {jlMessages.map((msg) => {
                 const isExpanded = expandedId === msg.id;
                 const link = getSlackLink(msg);
+                const tierColor = tierColors[msg.tier] || "var(--border)";
                 return (
                   <div
                     key={msg.id}
                     className="rounded-xl transition-all duration-200 cursor-pointer"
                     style={{
-                      background: isExpanded ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.02)",
-                      borderLeft: `2px solid ${tierColors[msg.tier] || "var(--border)"}`,
-                      borderTop: "1px solid var(--border)",
-                      borderRight: "1px solid var(--border)",
-                      borderBottom: "1px solid var(--border)",
+                      background: isExpanded ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.015)",
+                      borderLeft: `3px solid ${tierColor}`,
+                      borderTop: "1px solid var(--glass-border)",
+                      borderRight: "1px solid var(--glass-border)",
+                      borderBottom: "1px solid var(--glass-border)",
                     }}
                     onClick={() => toggle(msg.id)}
                   >
-                    <div className="flex items-center gap-3 p-3">
-                      <span className="text-sm font-medium shrink-0" style={{ color: "var(--text-primary)" }}>{msg.sender}</span>
-                      <span className="text-sm flex-1 min-w-0 truncate" style={{ color: "var(--text-muted)" }}>{msg.preview}</span>
-                      <span className="text-xs shrink-0 metric-value" style={{ color: "var(--text-muted)", fontSize: "0.6rem" }}>{timeAgo(msg.timestamp)}</span>
+                    <div className="flex items-center gap-3 p-4">
+                      <span
+                        className="text-sm font-medium shrink-0"
+                        style={{ color: "var(--text-primary)" }}
+                      >
+                        {msg.sender}
+                      </span>
+                      <span
+                        className="text-sm flex-1 min-w-0 truncate"
+                        style={{ color: "var(--text-muted)" }}
+                      >
+                        {msg.preview}
+                      </span>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {msg.tier <= 2 && (
+                          <span
+                            className="px-1.5 py-0.5 rounded"
+                            style={{
+                              background: msg.tier === 1 ? "rgba(239,68,68,0.1)" : "rgba(245,158,11,0.1)",
+                              color: tierColor,
+                              fontSize: "0.55rem",
+                              fontFamily: "'JetBrains Mono', monospace",
+                              fontWeight: 600,
+                            }}
+                          >
+                            {tierLabels[msg.tier]}
+                          </span>
+                        )}
+                        <span
+                          className="metric-value"
+                          style={{ color: "var(--text-muted)", fontSize: "0.6rem" }}
+                        >
+                          {timeAgo(msg.timestamp)}
+                        </span>
+                      </div>
                     </div>
                     {isExpanded && (
-                      <div className="px-3 pb-3" style={{ borderTop: "1px solid var(--border)" }} onClick={(e) => e.stopPropagation()}>
-                        <div className="pt-2">
-                          <span className="text-xs metric-value block mb-2" style={{ color: "var(--text-muted)", fontSize: "0.6rem" }}>{msg.channel}</span>
-                          <p className="text-sm leading-relaxed mb-3" style={{ color: "var(--text-secondary)" }}>{msg.full_text}</p>
+                      <div
+                        className="px-4 pb-4"
+                        style={{ borderTop: "1px solid var(--border)" }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className="pt-3">
+                          <span
+                            className="metric-value block mb-2"
+                            style={{ color: "var(--text-muted)", fontSize: "0.6rem" }}
+                          >
+                            #{msg.channel}
+                          </span>
+                          <p
+                            className="text-sm leading-relaxed mb-4"
+                            style={{ color: "var(--text-secondary)" }}
+                          >
+                            {msg.full_text}
+                          </p>
                           {link && (
                             <a
                               href={link}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs"
-                              style={{ color: "var(--neon-blue)", background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.15)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem" }}
+                              className="action-btn"
+                              style={{
+                                color: "var(--neon-blue)",
+                                background: "rgba(59,130,246,0.06)",
+                                borderColor: "rgba(59,130,246,0.15)",
+                              }}
                             >
                               Open in Slack
                             </a>
@@ -159,9 +233,15 @@ export default function CommunicationsPage() {
 
         {/* Performance Golf Slack */}
         <section>
-          <div className="flex items-center gap-2.5 mb-4 pb-3" style={{ borderBottom: "1px solid rgba(245,158,11,0.1)" }}>
-            <span className="w-2.5 h-2.5 rounded-full" style={{ background: "var(--neon-amber)", boxShadow: "0 0 6px var(--neon-amber)" }} />
-            <span className="text-xs uppercase tracking-wider font-semibold" style={{ color: "var(--neon-amber)", fontSize: "0.7rem" }}>
+          <div className="flex items-center gap-2.5 mb-5 pb-3" style={{ borderBottom: "1px solid rgba(245,158,11,0.08)" }}>
+            <span
+              className="w-2.5 h-2.5 rounded-full shrink-0"
+              style={{ background: "var(--neon-amber)", boxShadow: "0 0 6px var(--neon-amber)" }}
+            />
+            <span
+              className="uppercase tracking-wider font-semibold"
+              style={{ color: "var(--neon-amber)", fontSize: "0.7rem", letterSpacing: "0.08em" }}
+            >
               Performance Golf Slack
             </span>
           </div>

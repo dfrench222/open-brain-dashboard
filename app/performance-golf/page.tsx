@@ -41,7 +41,7 @@ export default function PerformanceGolfPage() {
       <CommandBar />
 
       <h1
-        className="text-lg font-semibold mb-6"
+        className="text-lg font-semibold mb-8"
         style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}
       >
         Performance Golf
@@ -49,9 +49,7 @@ export default function PerformanceGolfPage() {
 
       {/* Revenue */}
       <section className="mb-10">
-        <h2 className="text-xs uppercase tracking-widest font-semibold mb-5" style={{ color: "var(--text-secondary)", letterSpacing: "0.1em" }}>
-          Revenue
-        </h2>
+        <h2 className="section-heading mb-5">Revenue</h2>
         <PendingState
           label="PG revenue metrics pending connection"
           connectLabel="Connect DOMO for real-time data"
@@ -60,35 +58,63 @@ export default function PerformanceGolfPage() {
 
       {/* Active Tasks */}
       <section className="mb-10">
-        <h2 className="text-xs uppercase tracking-widest font-semibold mb-5" style={{ color: "var(--text-secondary)", letterSpacing: "0.1em" }}>
-          ClickUp Tasks
+        <div className="flex items-center gap-3 mb-5">
+          <h2 className="section-heading">ClickUp Tasks</h2>
           {totalTasks > 0 && (
             <span
-              className="ml-2 text-xs font-bold px-2 py-0.5 rounded-full"
-              style={{ background: "rgba(59,130,246,0.15)", color: "var(--neon-blue)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem" }}
+              className="px-2 py-0.5 rounded-full"
+              style={{
+                background: "rgba(59,130,246,0.1)",
+                color: "var(--neon-blue)",
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: "0.6rem",
+                fontWeight: 600,
+              }}
             >
               {totalTasks}
             </span>
           )}
-        </h2>
+        </div>
 
         {loading ? (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border)" }}>
-                <div className="h-4 w-3/4 rounded" style={{ background: "rgba(255,255,255,0.05)" }} />
+              <div
+                key={i}
+                className="rounded-xl p-5 animate-fade-in-up"
+                style={{
+                  background: "rgba(255,255,255,0.015)",
+                  border: "1px solid var(--glass-border)",
+                  animationDelay: `${i * 100}ms`,
+                  opacity: 0,
+                }}
+              >
+                <div className="h-4 w-3/4 rounded" style={{ background: "rgba(255,255,255,0.04)" }} />
               </div>
             ))}
           </div>
         ) : activeTasks.length > 0 ? (
           <div className="space-y-3">
             {activeTasks.map((task) => {
+              const statusLower = task.status.toLowerCase();
               const statusColor =
-                task.status.toLowerCase() === "in progress"
+                statusLower === "in progress"
                   ? "var(--neon-green)"
-                  : task.status.toLowerCase() === "ready"
+                  : statusLower === "ready"
                   ? "var(--neon-amber)"
                   : "var(--text-muted)";
+              const statusBg =
+                statusLower === "in progress"
+                  ? "rgba(34,197,94,0.08)"
+                  : statusLower === "ready"
+                  ? "rgba(245,158,11,0.08)"
+                  : "rgba(107,100,98,0.08)";
+              const statusBorder =
+                statusLower === "in progress"
+                  ? "rgba(34,197,94,0.15)"
+                  : statusLower === "ready"
+                  ? "rgba(245,158,11,0.15)"
+                  : "rgba(107,100,98,0.15)";
 
               return (
                 <a
@@ -97,16 +123,39 @@ export default function PerformanceGolfPage() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-between p-4 rounded-xl transition-all duration-150"
-                  style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border)" }}
+                  style={{
+                    background: "rgba(255,255,255,0.015)",
+                    border: "1px solid var(--glass-border)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = "rgba(255,255,255,0.03)";
+                    e.currentTarget.style.borderColor = "rgba(179,170,163,0.12)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "rgba(255,255,255,0.015)";
+                    e.currentTarget.style.borderColor = "rgba(179,170,163,0.08)";
+                  }}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <span className="w-2 h-2 rounded-full shrink-0" style={{ background: statusColor, boxShadow: `0 0 6px ${statusColor}` }} />
-                    <span className="text-sm truncate" style={{ color: "var(--text-primary)" }}>{task.name}</span>
-                  </div>
-                  <div className="flex items-center gap-3 shrink-0">
                     <span
-                      className="text-xs uppercase px-2 py-1 rounded"
-                      style={{ color: statusColor, background: `${statusColor}10`, border: `1px solid ${statusColor}20`, fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem" }}
+                      className="w-2 h-2 rounded-full shrink-0"
+                      style={{ background: statusColor }}
+                    />
+                    <span className="text-sm truncate" style={{ color: "var(--text-primary)" }}>
+                      {task.name}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0 ml-4">
+                    <span
+                      className="px-2 py-1 rounded-md"
+                      style={{
+                        color: statusColor,
+                        background: statusBg,
+                        border: `1px solid ${statusBorder}`,
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontSize: "0.6rem",
+                        textTransform: "uppercase",
+                      }}
                     >
                       {task.status}
                     </span>
@@ -121,17 +170,13 @@ export default function PerformanceGolfPage() {
             })}
           </div>
         ) : (
-          <p className="text-sm italic py-4" style={{ color: "var(--text-muted)" }}>
-            No active tasks
-          </p>
+          <PendingState label="No active tasks" />
         )}
       </section>
 
       {/* PG Slack Feed */}
       <section className="mb-10">
-        <h2 className="text-xs uppercase tracking-widest font-semibold mb-5" style={{ color: "var(--text-secondary)", letterSpacing: "0.1em" }}>
-          PG Slack
-        </h2>
+        <h2 className="section-heading mb-5">PG Slack</h2>
         <PendingState
           label="PG Slack feed pending token"
           connectLabel="Extract PG bot token from MCP config"

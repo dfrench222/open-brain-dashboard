@@ -11,27 +11,28 @@ interface PendingStateProps {
 export default function PendingState({ label, connectLabel, icon }: PendingStateProps) {
   return (
     <div
-      className="p-6 rounded-xl text-center"
+      className="p-8 rounded-xl text-center"
       style={{
-        background: "rgba(255,255,255,0.02)",
-        border: "1px dashed rgba(179, 170, 163, 0.15)",
+        background: "rgba(255,255,255,0.015)",
+        border: "1px dashed rgba(179, 170, 163, 0.12)",
       }}
     >
       {icon && (
-        <div className="flex justify-center mb-3" style={{ color: "var(--text-muted)", opacity: 0.5 }}>
+        <div className="flex justify-center mb-4" style={{ color: "var(--text-muted)", opacity: 0.4 }}>
           {icon}
         </div>
       )}
-      <p className="text-sm italic mb-1" style={{ color: "var(--text-muted)" }}>
+      <p className="text-sm italic mb-2" style={{ color: "var(--text-muted)" }}>
         {label}
       </p>
       {connectLabel && (
         <p
-          className="text-xs flex items-center justify-center gap-1.5 mt-2"
+          className="flex items-center justify-center gap-2 mt-3"
           style={{
             color: "var(--text-muted)",
             fontFamily: "'JetBrains Mono', monospace",
-            fontSize: "0.6rem",
+            fontSize: "0.65rem",
+            opacity: 0.7,
           }}
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

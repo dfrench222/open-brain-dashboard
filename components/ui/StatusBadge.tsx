@@ -8,11 +8,11 @@ interface StatusBadgeProps {
 }
 
 const statusConfig = {
-  active: { color: "var(--neon-green)", bg: "rgba(34, 197, 94, 0.1)", label: "Active" },
-  planning: { color: "var(--neon-amber)", bg: "rgba(245, 158, 11, 0.1)", label: "Planning" },
-  building: { color: "var(--neon-cyan)", bg: "rgba(0, 255, 200, 0.1)", label: "Building" },
-  paused: { color: "var(--text-muted)", bg: "rgba(71, 85, 105, 0.1)", label: "Paused" },
-  completed: { color: "var(--neon-purple)", bg: "rgba(168, 85, 247, 0.1)", label: "Completed" },
+  active: { color: "var(--neon-green)", bg: "rgba(34, 197, 94, 0.08)", label: "Active" },
+  planning: { color: "var(--neon-amber)", bg: "rgba(245, 158, 11, 0.08)", label: "Planning" },
+  building: { color: "var(--neon-cyan)", bg: "rgba(0, 255, 200, 0.08)", label: "Building" },
+  paused: { color: "var(--text-muted)", bg: "rgba(71, 85, 105, 0.08)", label: "Paused" },
+  completed: { color: "var(--neon-purple)", bg: "rgba(168, 85, 247, 0.08)", label: "Completed" },
 };
 
 export default function StatusBadge({ status, label }: StatusBadgeProps) {
@@ -20,13 +20,16 @@ export default function StatusBadge({ status, label }: StatusBadgeProps) {
 
   return (
     <span
-      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium uppercase tracking-wider whitespace-nowrap shrink-0"
+      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full whitespace-nowrap shrink-0"
       style={{
         color: config.color,
         backgroundColor: config.bg,
-        border: `1px solid ${config.color}30`,
+        border: `1px solid ${config.color}20`,
         fontFamily: "'JetBrains Mono', monospace",
         fontSize: "0.65rem",
+        fontWeight: 500,
+        textTransform: "uppercase",
+        letterSpacing: "0.05em",
       }}
     >
       <span

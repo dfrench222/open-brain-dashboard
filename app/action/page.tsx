@@ -64,7 +64,6 @@ function generateSuggestions(tasks: ClickUpTask[]): Suggestion[] {
     });
   });
 
-  // If we have fewer than 3, pad with general suggestions from active tasks
   const active = tasks.filter((t) => !overdue.includes(t)).slice(0, 5 - suggestions.length);
   active.forEach((task) => {
     suggestions.push({
@@ -111,7 +110,6 @@ export default function ActionPage() {
         issuesList.push(`${overdueTasks.length} overdue ClickUp task${overdueTasks.length !== 1 ? "s" : ""}`);
       }
 
-      // Map all active tasks to action items
       (cuData.tasks || []).forEach((task: ClickUpTask) => {
         const isOverdue = task.due_date && new Date(task.due_date) < new Date();
         items.push({
@@ -149,10 +147,9 @@ export default function ActionPage() {
         });
       }
     } catch {
-      // Notion unavailable
+      // Notion unavailable -- silent
     }
 
-    // Sort: REQ first, then F/U, then TASK
     const typeOrder: Record<string, number> = { REQ: 0, "F/U": 1, TASK: 2 };
     items.sort((a, b) => (typeOrder[a.type] || 2) - (typeOrder[b.type] || 2));
 
@@ -176,41 +173,49 @@ export default function ActionPage() {
     <div>
       <CommandBar />
 
-      {/* Issues/Warnings Banner */}
+      {/* Issues/Warnings */}
       <IssuesBanner issues={issues} warnings={warnings} />
 
       {/* ACTION REQUIRED */}
       <section className="mb-10">
-        <h2
-          className="text-xs uppercase tracking-widest font-semibold mb-5"
-          style={{ color: "var(--text-secondary)", letterSpacing: "0.1em" }}
-        >
-          Action Required
+        <div className="flex items-center gap-3 mb-5">
+          <h2 className="section-heading">Action Required</h2>
           {overdueCount > 0 && (
             <span
-              className="ml-2 text-xs font-bold px-2 py-0.5 rounded-full"
+              className="px-2 py-0.5 rounded-full"
               style={{
-                background: "rgba(239,68,68,0.15)",
+                background: "rgba(239,68,68,0.12)",
                 color: "var(--neon-red)",
                 fontFamily: "'JetBrains Mono', monospace",
                 fontSize: "0.6rem",
+                fontWeight: 700,
               }}
             >
               {overdueCount} overdue
             </span>
           )}
-        </h2>
+        </div>
 
         {loading ? (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="rounded-xl p-6"
-                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border)" }}
+                className="rounded-2xl p-6 animate-fade-in-up"
+                style={{
+                  background: "rgba(255,255,255,0.015)",
+                  border: "1px solid var(--glass-border)",
+                  animationDelay: `${i * 100}ms`,
+                  opacity: 0,
+                }}
               >
-                <div className="h-4 w-3/4 rounded" style={{ background: "rgba(255,255,255,0.05)" }} />
-                <div className="h-3 w-1/2 rounded mt-2" style={{ background: "rgba(255,255,255,0.03)" }} />
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-5 rounded-md" style={{ background: "rgba(255,255,255,0.04)" }} />
+                  <div className="flex-1">
+                    <div className="h-4 w-3/4 rounded" style={{ background: "rgba(255,255,255,0.04)" }} />
+                    <div className="h-3 w-1/3 rounded mt-2" style={{ background: "rgba(255,255,255,0.02)" }} />
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -220,47 +225,51 @@ export default function ActionPage() {
       </section>
 
       {/* Key Metrics */}
-      <section className="mb-10">
-        <h2
-          className="text-xs uppercase tracking-widest font-semibold mb-5"
-          style={{ color: "var(--text-secondary)", letterSpacing: "0.1em" }}
-        >
-          Key Metrics
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="glass-card p-5">
-            <span className="kpi-label block mb-2">Restitution Balance</span>
+      <section className="mb-10 animate-fade-in-up delay-200" style={{ opacity: 0 }}>
+        <h2 className="section-heading mb-5">Key Metrics</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          <div className="glass-card" style={{ padding: "24px" }}>
+            <span className="kpi-label block mb-3">Restitution Balance</span>
             <span
               className="text-2xl font-bold block metric-value"
-              style={{ color: "var(--neon-purple)", textShadow: "0 0 10px rgba(168,85,247,0.3)" }}
+              style={{ color: "var(--neon-purple)", textShadow: "0 0 12px rgba(168,85,247,0.25)" }}
             >
               ~$8.4M
             </span>
-            <span className="text-xs block mt-1" style={{ color: "var(--text-muted)", fontSize: "0.55rem" }}>
+            <span
+              className="text-xs block mt-2"
+              style={{ color: "var(--text-muted)", fontSize: "0.65rem" }}
+            >
               Estimated -- verified
             </span>
           </div>
-          <div className="glass-card p-5">
-            <span className="kpi-label block mb-2">Penny Monthly</span>
+          <div className="glass-card" style={{ padding: "24px" }}>
+            <span className="kpi-label block mb-3">Penny Monthly</span>
             <span
               className="text-2xl font-bold block metric-value"
-              style={{ color: "var(--neon-blue)", textShadow: "0 0 10px rgba(59,130,246,0.3)" }}
+              style={{ color: "var(--neon-blue)", textShadow: "0 0 12px rgba(59,130,246,0.25)" }}
             >
               $10,596
             </span>
-            <span className="text-xs block mt-1" style={{ color: "var(--text-muted)", fontSize: "0.55rem" }}>
+            <span
+              className="text-xs block mt-2"
+              style={{ color: "var(--text-muted)", fontSize: "0.65rem" }}
+            >
               Support + Tuition + Fund
             </span>
           </div>
-          <div className="glass-card p-5">
-            <span className="kpi-label block mb-2">Waiting On You</span>
+          <div className="glass-card" style={{ padding: "24px" }}>
+            <span className="kpi-label block mb-3">Waiting On You</span>
             <span
               className="text-2xl font-bold block metric-value"
-              style={{ color: "var(--accent-warm)", textShadow: "0 0 10px rgba(253,51,0,0.3)" }}
+              style={{ color: "var(--accent-warm)", textShadow: "0 0 12px rgba(253,51,0,0.25)" }}
             >
               {totalTasks}
             </span>
-            <span className="text-xs block mt-1" style={{ color: "var(--text-muted)", fontSize: "0.55rem" }}>
+            <span
+              className="text-xs block mt-2"
+              style={{ color: "var(--text-muted)", fontSize: "0.65rem" }}
+            >
               Total actionable tasks
             </span>
           </div>
@@ -269,7 +278,7 @@ export default function ActionPage() {
 
       {/* What I Can Do Right Now */}
       {suggestions.length > 0 && (
-        <section className="mb-10">
+        <section className="mb-10 animate-fade-in-up delay-300" style={{ opacity: 0 }}>
           <ActionSuggestions suggestions={suggestions} />
         </section>
       )}

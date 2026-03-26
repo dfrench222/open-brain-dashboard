@@ -56,163 +56,233 @@ export default function DailyBriefing() {
 
   return (
     <div className="animate-fade-in-up delay-100" style={{ opacity: 0 }}>
+      {/* Section label */}
+      <h2 className="section-heading mb-5">Today&apos;s Briefing</h2>
+
+      {/* Tier 1: At-a-Glance Summary */}
       <div
-        className="rounded-2xl overflow-hidden"
+        className="rounded-2xl p-6 mb-6"
         style={{
-          background: "linear-gradient(135deg, rgba(0,255,200,0.03) 0%, rgba(59,130,246,0.03) 50%, rgba(168,85,247,0.03) 100%)",
-          border: "1px solid var(--border)",
+          background: "linear-gradient(135deg, rgba(23, 21, 21, 0.9) 0%, rgba(31, 28, 28, 0.7) 100%)",
+          border: "1px solid var(--glass-border)",
         }}
       >
-        {/* Header */}
-        <div className="p-6 pb-0">
-          <div className="flex items-center justify-between mb-1">
-            <div>
-              <span
-                className="text-xs uppercase tracking-widest font-semibold"
-                style={{ color: "var(--accent)", fontSize: "0.7rem", letterSpacing: "0.15em" }}
-              >
-                Today&apos;s Briefing
-              </span>
-              {hasLimitless && briefing?.date && (
-                <span
-                  className="block text-xs mt-0.5"
-                  style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.55rem" }}
-                >
-                  From {formatBriefingDate(briefing.date)}&apos;s Limitless Insights
-                </span>
-              )}
-            </div>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2.5">
             <span
-              className="text-xs"
-              style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.6rem" }}
+              className="uppercase font-semibold"
+              style={{ color: "var(--accent)", fontSize: "0.7rem", letterSpacing: "0.15em" }}
             >
-              {todayStr}
+              Today at a Glance
             </span>
+            {hasLimitless && (
+              <span
+                className="px-2 py-0.5 rounded-full"
+                style={{
+                  background: "rgba(0,255,200,0.08)",
+                  color: "var(--accent)",
+                  fontSize: "0.55rem",
+                  fontFamily: "'JetBrains Mono', monospace",
+                }}
+              >
+                Live
+              </span>
+            )}
+          </div>
+          <span
+            className="metric-value"
+            style={{ color: "var(--text-muted)", fontSize: "0.6rem" }}
+          >
+            {todayStr}
+          </span>
+        </div>
+
+        {hasLimitless && briefing?.date && (
+          <p
+            className="metric-value mb-3"
+            style={{ color: "var(--text-muted)", fontSize: "0.6rem" }}
+          >
+            Source: {formatBriefingDate(briefing.date)}&apos;s Limitless Insights
+          </p>
+        )}
+
+        {/* Summary row */}
+        <div
+          className="flex flex-wrap gap-5 text-sm"
+          style={{ color: "var(--text-secondary)" }}
+        >
+          <span className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--neon-red)" }} />
+            {hasLimitless ? `${briefing!.actionItems.length} action items` : "No actions yet"}
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--neon-amber)" }} />
+            {hasLimitless ? `${briefing!.followUps.length} follow-ups` : "No follow-ups"}
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--neon-blue)" }} />
+            {calendarConnected ? "Calendar connected" : "Calendar pending"}
+          </span>
+        </div>
+      </div>
+
+      {/* Tier 2: Detail Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        {/* Action Items */}
+        <div
+          className="glass-card p-6"
+          style={{
+            borderColor: hasLimitless && briefing!.actionItems.length > 0
+              ? "rgba(239,68,68,0.12)"
+              : undefined,
+          }}
+        >
+          <div className="flex items-center gap-2 mb-5">
+            <span className="w-2 h-2 rounded-full shrink-0" style={{ background: "var(--neon-red)" }} />
+            <span
+              className="uppercase tracking-wider font-semibold"
+              style={{ color: "var(--neon-red)", fontSize: "0.65rem", letterSpacing: "0.08em" }}
+            >
+              {hasLimitless ? "Action Items" : "Top Priorities"}
+            </span>
+          </div>
+          <div className="space-y-4">
+            {hasLimitless && briefing!.actionItems.length > 0 ? (
+              briefing!.actionItems.map((item, idx) => (
+                <div key={`a-${idx}`} className="flex items-start gap-3">
+                  <span
+                    className="metric-value font-bold mt-0.5 shrink-0"
+                    style={{ color: "var(--neon-red)", fontSize: "0.65rem" }}
+                  >
+                    {idx + 1}.
+                  </span>
+                  <span
+                    className="text-sm leading-relaxed"
+                    style={{ color: "var(--text-primary)" }}
+                  >
+                    {item.replace(/\*\*/g, "")}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm italic" style={{ color: "var(--text-muted)" }}>
+                {briefing?.message || "Waiting for Limitless data"}
+              </p>
+            )}
           </div>
         </div>
 
-        <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-5">
-          {/* Action Items */}
-          <div
-            className="p-5 rounded-xl"
-            style={{ background: "rgba(239,68,68,0.04)", border: "1px solid rgba(239,68,68,0.08)" }}
-          >
-            <div className="flex items-center gap-2 mb-4">
-              <span className="w-2 h-2 rounded-full shrink-0" style={{ background: "var(--neon-red)" }} />
-              <span className="text-xs uppercase tracking-wider font-semibold" style={{ color: "var(--neon-red)", fontSize: "0.65rem" }}>
-                {hasLimitless ? "Action Items" : "Top Priorities"}
-              </span>
-            </div>
-            <div className="space-y-3">
-              {hasLimitless && briefing!.actionItems.length > 0 ? (
-                briefing!.actionItems.map((item, idx) => (
-                  <div key={`a-${idx}`} className="flex items-start gap-2.5">
-                    <span className="text-xs font-bold mt-0.5 shrink-0 metric-value" style={{ color: "var(--neon-red)", fontSize: "0.65rem" }}>
-                      {idx + 1}.
-                    </span>
-                    <span className="text-sm leading-snug" style={{ color: "var(--text-primary)" }}>
-                      {item.replace(/\*\*/g, "")}
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm italic" style={{ color: "var(--text-muted)" }}>
-                  {briefing?.message || "No data available"}
-                </p>
-              )}
-            </div>
+        {/* Today's Schedule */}
+        <div className="glass-card p-6">
+          <div className="flex items-center gap-2 mb-5">
+            <span className="w-2 h-2 rounded-full shrink-0" style={{ background: "var(--neon-blue)" }} />
+            <span
+              className="uppercase tracking-wider font-semibold"
+              style={{ color: "var(--neon-blue)", fontSize: "0.65rem", letterSpacing: "0.08em" }}
+            >
+              Today&apos;s Schedule
+            </span>
           </div>
+          <div className="space-y-4">
+            {!calendarConnected ? (
+              <div
+                className="flex items-center gap-3 p-3 rounded-lg"
+                style={{ border: "1px dashed rgba(179,170,163,0.12)" }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                </svg>
+                <span className="text-sm italic" style={{ color: "var(--text-muted)" }}>
+                  Connect Google Calendar
+                </span>
+              </div>
+            ) : (
+              <p className="text-sm italic" style={{ color: "var(--text-muted)" }}>
+                No events today
+              </p>
+            )}
 
-          {/* Today's Schedule */}
-          <div
-            className="p-5 rounded-xl"
-            style={{ background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.08)" }}
-          >
-            <div className="flex items-center gap-2 mb-4">
-              <span className="w-2 h-2 rounded-full shrink-0" style={{ background: "var(--neon-blue)" }} />
-              <span className="text-xs uppercase tracking-wider font-semibold" style={{ color: "var(--neon-blue)", fontSize: "0.65rem" }}>
-                Today&apos;s Schedule
-              </span>
-            </div>
-            <div className="space-y-3">
-              {!calendarConnected ? (
-                <div className="flex items-center gap-2">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
-                  </svg>
-                  <span className="text-sm italic" style={{ color: "var(--text-muted)" }}>
-                    Connect Google Calendar
-                  </span>
-                </div>
-              ) : (
-                <p className="text-sm italic" style={{ color: "var(--text-muted)" }}>
-                  No events today
-                </p>
-              )}
-
-              {/* Decisions from yesterday */}
-              {hasLimitless && briefing!.decisions.length > 0 && (
-                <div className="mt-3 pt-3" style={{ borderTop: "1px solid var(--border)" }}>
-                  <span className="text-xs block mb-2 uppercase tracking-wider" style={{ color: "var(--text-muted)", fontSize: "0.55rem" }}>
-                    Yesterday&apos;s Decisions
-                  </span>
+            {/* Decisions from yesterday */}
+            {hasLimitless && briefing!.decisions.length > 0 && (
+              <div className="pt-4 mt-1" style={{ borderTop: "1px solid var(--border)" }}>
+                <span
+                  className="block mb-3 uppercase tracking-wider"
+                  style={{ color: "var(--text-muted)", fontSize: "0.6rem", letterSpacing: "0.08em" }}
+                >
+                  Yesterday&apos;s Decisions
+                </span>
+                <div className="space-y-3">
                   {briefing!.decisions.slice(0, 2).map((d, i) => (
-                    <div key={`d-${i}`} className="flex items-start gap-2 mb-2">
+                    <div key={`d-${i}`} className="flex items-start gap-2.5">
                       <span className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "var(--neon-blue)", opacity: 0.5 }} />
-                      <span className="text-xs leading-snug" style={{ color: "var(--text-muted)", fontSize: "0.65rem" }}>
+                      <span
+                        className="leading-snug"
+                        style={{ color: "var(--text-muted)", fontSize: "0.75rem" }}
+                      >
                         {d.replace(/\*\*/g, "").replace(/^\*?Decision\*?:?\s*/i, "")}
                       </span>
                     </div>
                   ))}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
+        </div>
 
-          {/* Follow-Ups */}
-          <div
-            className="p-5 rounded-xl"
-            style={{ background: "rgba(245,158,11,0.04)", border: "1px solid rgba(245,158,11,0.08)" }}
-          >
-            <div className="flex items-center gap-2 mb-4">
-              <span className="w-2 h-2 rounded-full shrink-0" style={{ background: "var(--neon-amber)" }} />
-              <span className="text-xs uppercase tracking-wider font-semibold" style={{ color: "var(--neon-amber)", fontSize: "0.65rem" }}>
-                {hasLimitless ? "Follow-Ups" : "Pending Actions"}
-              </span>
-            </div>
-            <div className="space-y-3">
-              {hasLimitless && briefing!.followUps.length > 0 ? (
-                briefing!.followUps.map((item, idx) => (
-                  <div key={`f-${idx}`} className="flex items-start gap-2.5">
-                    <span className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "var(--neon-amber)" }} />
-                    <span className="text-sm leading-snug" style={{ color: "var(--text-primary)" }}>
-                      {item.replace(/\*\*/g, "")}
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm italic" style={{ color: "var(--text-muted)" }}>
-                  No follow-ups
-                </p>
-              )}
-
-              {/* Unresolved */}
-              {hasLimitless && briefing!.unresolvedQuestions.length > 0 && (
-                <div className="mt-3 pt-3" style={{ borderTop: "1px solid var(--border)" }}>
-                  <span className="text-xs block mb-2 uppercase tracking-wider" style={{ color: "var(--text-muted)", fontSize: "0.55rem" }}>
-                    Unresolved
+        {/* Follow-Ups */}
+        <div className="glass-card p-6">
+          <div className="flex items-center gap-2 mb-5">
+            <span className="w-2 h-2 rounded-full shrink-0" style={{ background: "var(--neon-amber)" }} />
+            <span
+              className="uppercase tracking-wider font-semibold"
+              style={{ color: "var(--neon-amber)", fontSize: "0.65rem", letterSpacing: "0.08em" }}
+            >
+              {hasLimitless ? "Follow-Ups" : "Pending Actions"}
+            </span>
+          </div>
+          <div className="space-y-4">
+            {hasLimitless && briefing!.followUps.length > 0 ? (
+              briefing!.followUps.map((item, idx) => (
+                <div key={`f-${idx}`} className="flex items-start gap-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "var(--neon-amber)" }} />
+                  <span
+                    className="text-sm leading-relaxed"
+                    style={{ color: "var(--text-primary)" }}
+                  >
+                    {item.replace(/\*\*/g, "")}
                   </span>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm italic" style={{ color: "var(--text-muted)" }}>
+                No follow-ups
+              </p>
+            )}
+
+            {/* Unresolved */}
+            {hasLimitless && briefing!.unresolvedQuestions.length > 0 && (
+              <div className="pt-4 mt-1" style={{ borderTop: "1px solid var(--border)" }}>
+                <span
+                  className="block mb-3 uppercase tracking-wider"
+                  style={{ color: "var(--text-muted)", fontSize: "0.6rem", letterSpacing: "0.08em" }}
+                >
+                  Unresolved
+                </span>
+                <div className="space-y-3">
                   {briefing!.unresolvedQuestions.slice(0, 2).map((q, i) => (
-                    <div key={`q-${i}`} className="flex items-start gap-2 mb-2">
-                      <span className="text-xs mt-0.5 shrink-0" style={{ color: "var(--neon-amber)", opacity: 0.6 }}>?</span>
-                      <span className="text-xs leading-snug" style={{ color: "var(--text-muted)", fontSize: "0.65rem" }}>
+                    <div key={`q-${i}`} className="flex items-start gap-2.5">
+                      <span className="mt-0.5 shrink-0" style={{ color: "var(--neon-amber)", opacity: 0.5, fontSize: "0.7rem" }}>?</span>
+                      <span
+                        className="leading-snug"
+                        style={{ color: "var(--text-muted)", fontSize: "0.75rem" }}
+                      >
                         {q.replace(/\*\*/g, "")}
                       </span>
                     </div>
                   ))}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -31,58 +31,89 @@ export default function MorningAnchor() {
   return (
     <section className="animate-fade-in-up">
       <div
-        className="rounded-2xl p-8 md:p-10 relative overflow-hidden"
+        className="rounded-2xl relative overflow-visible"
         style={{
-          background: "linear-gradient(135deg, rgba(0,255,200,0.03) 0%, rgba(168,85,247,0.03) 50%, rgba(0,255,200,0.03) 100%)",
-          border: "1px solid var(--border)",
+          background: "linear-gradient(135deg, rgba(0,255,200,0.025) 0%, rgba(168,85,247,0.025) 50%, rgba(0,255,200,0.025) 100%)",
+          border: "1px solid var(--glass-border)",
+          padding: "clamp(32px, 5vw, 48px) clamp(24px, 4vw, 40px)",
         }}
       >
         {/* North Star */}
         <div className="text-center mb-8">
           <p
-            className="text-xs uppercase mb-4 tracking-widest font-medium"
-            style={{ color: "var(--text-muted)", letterSpacing: "0.2em", fontSize: "0.65rem" }}
+            className="uppercase mb-5 font-medium"
+            style={{
+              color: "var(--text-muted)",
+              letterSpacing: "0.2em",
+              fontSize: "0.65rem",
+            }}
           >
             North Star Principle
           </p>
           <h2
-            className="north-star-text text-xl sm:text-2xl md:text-3xl font-bold leading-tight"
+            className="north-star-text font-bold leading-tight mx-auto"
+            style={{
+              fontSize: "clamp(1.25rem, 3.5vw, 1.875rem)",
+              maxWidth: "36ch",
+              lineHeight: 1.35,
+            }}
           >
             &ldquo;Whatever you want in life &mdash; give it away first.&rdquo;
           </h2>
         </div>
 
         {/* Divider */}
-        <div className="flex items-center justify-center gap-4 my-6">
-          <div className="h-px flex-1 max-w-[80px]" style={{ background: "linear-gradient(90deg, transparent, var(--accent))" }} />
+        <div className="flex items-center justify-center gap-4 my-7">
+          <div
+            className="h-px flex-1 max-w-[60px]"
+            style={{ background: "linear-gradient(90deg, transparent, rgba(0,255,200,0.25))" }}
+          />
           <div
             className="w-1.5 h-1.5 rotate-45"
-            style={{ background: "var(--accent)", boxShadow: "0 0 8px var(--accent)" }}
+            style={{
+              background: "var(--accent)",
+              boxShadow: "0 0 8px rgba(0,255,200,0.4)",
+              opacity: 0.6,
+            }}
           />
-          <div className="h-px flex-1 max-w-[80px]" style={{ background: "linear-gradient(270deg, transparent, var(--accent))" }} />
+          <div
+            className="h-px flex-1 max-w-[60px]"
+            style={{ background: "linear-gradient(270deg, transparent, rgba(0,255,200,0.25))" }}
+          />
         </div>
 
         {/* Daily Quote */}
         <div className="text-center">
           <p
-            className="text-xs uppercase mb-3 tracking-widest font-medium"
-            style={{ color: "var(--text-muted)", letterSpacing: "0.2em", fontSize: "0.6rem" }}
+            className="uppercase mb-4 font-medium"
+            style={{
+              color: "var(--text-muted)",
+              letterSpacing: "0.2em",
+              fontSize: "0.6rem",
+            }}
           >
             Daily Wisdom &mdash; GuruKev Lessons
           </p>
           <blockquote
-            className="text-base sm:text-lg italic max-w-2xl mx-auto leading-relaxed"
-            style={{ color: "var(--text-secondary)", lineHeight: "1.7" }}
+            className="italic max-w-2xl mx-auto leading-relaxed"
+            style={{
+              color: "var(--text-secondary)",
+              fontSize: "clamp(0.9rem, 2vw, 1.1rem)",
+              lineHeight: 1.75,
+            }}
           >
             &ldquo;{quote.quote_text}&rdquo;
           </blockquote>
           <cite
-            className="block mt-3 text-sm not-italic metric-value"
-            style={{ color: "var(--text-muted)" }}
+            className="block mt-4 not-italic metric-value"
+            style={{
+              color: "var(--text-muted)",
+              fontSize: "0.8rem",
+            }}
           >
             &mdash; {quote.source_author}
             {quote.source_title && (
-              <span style={{ opacity: 0.6 }}> / {quote.source_title}</span>
+              <span style={{ opacity: 0.5 }}> / {quote.source_title}</span>
             )}
           </cite>
         </div>

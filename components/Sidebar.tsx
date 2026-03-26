@@ -118,7 +118,6 @@ export default function Sidebar({ taskCount }: { taskCount?: number }) {
     },
   ];
 
-  // Mobile bottom nav - show 5 key items
   const mobileItems = navItems.filter((item) =>
     ["/", "/action", "/communications", "/people", "/knowledge"].includes(item.href)
   );
@@ -130,7 +129,7 @@ export default function Sidebar({ taskCount }: { taskCount?: number }) {
 
   return (
     <>
-      {/* Desktop sidebar */}
+      {/* ─── Desktop Sidebar ─── */}
       <aside
         className="hidden md:flex flex-col fixed left-0 top-0 bottom-0 z-40"
         style={{
@@ -139,17 +138,17 @@ export default function Sidebar({ taskCount }: { taskCount?: number }) {
           borderRight: "1px solid var(--border)",
         }}
       >
-        {/* Logo */}
-        <div className="px-5 pt-6 pb-2">
-          <div className="flex items-center gap-2.5 mb-1">
+        {/* Logo area */}
+        <div className="px-5 pt-7 pb-3">
+          <div className="flex items-center gap-3 mb-2">
             <div
               className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
               style={{
-                background: "linear-gradient(135deg, rgba(0,255,200,0.12), rgba(168,85,247,0.12))",
-                border: "1px solid rgba(0,255,200,0.2)",
+                background: "linear-gradient(135deg, rgba(0,255,200,0.1), rgba(168,85,247,0.1))",
+                border: "1px solid rgba(0,255,200,0.18)",
               }}
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <path
                   d="M12 2C8.5 2 5 4.5 5 8.5C5 10.5 5.5 11.5 6 12.5C6.5 13.5 7 14.5 7 16V17C7 18.1 7.9 19 9 19H15C16.1 19 17 18.1 17 17V16C17 14.5 17.5 13.5 18 12.5C18.5 11.5 19 10.5 19 8.5C19 4.5 15.5 2 12 2Z"
                   stroke="var(--accent)"
@@ -162,13 +161,13 @@ export default function Sidebar({ taskCount }: { taskCount?: number }) {
             </div>
             <span
               className="text-sm font-bold tracking-wider uppercase"
-              style={{ color: "var(--accent)" }}
+              style={{ color: "var(--accent)", letterSpacing: "0.12em" }}
             >
               OPEN BRAIN
             </span>
           </div>
           <p
-            className="text-xs mt-2 pl-0.5"
+            className="text-xs pl-0.5 mt-3"
             style={{
               color: "var(--text-muted)",
               fontFamily: "'JetBrains Mono', monospace",
@@ -180,10 +179,10 @@ export default function Sidebar({ taskCount }: { taskCount?: number }) {
         </div>
 
         {/* Divider */}
-        <div className="mx-4 my-3 h-px" style={{ background: "var(--border)" }} />
+        <div className="mx-5 my-2 h-px" style={{ background: "var(--border)" }} />
 
-        {/* Nav items */}
-        <nav className="flex-1 px-3 overflow-y-auto">
+        {/* Nav */}
+        <nav className="flex-1 px-3 pt-2 overflow-y-auto">
           <div className="space-y-1">
             {navItems.map((item) => {
               const active = isActive(item.href);
@@ -191,20 +190,39 @@ export default function Sidebar({ taskCount }: { taskCount?: number }) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 relative"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 relative group"
                   style={{
                     color: active ? "var(--accent)" : "var(--text-secondary)",
-                    background: active ? "rgba(0,255,200,0.08)" : "transparent",
+                    background: active ? "rgba(0,255,200,0.06)" : "transparent",
                     fontWeight: active ? 500 : 400,
                   }}
+                  onMouseEnter={(e) => {
+                    if (!active) {
+                      e.currentTarget.style.background = "rgba(255,255,255,0.03)";
+                      e.currentTarget.style.color = "var(--text-primary)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!active) {
+                      e.currentTarget.style.background = "transparent";
+                      e.currentTarget.style.color = "var(--text-secondary)";
+                    }
+                  }}
                 >
-                  <span style={{ opacity: active ? 1 : 0.6 }}>{item.icon}</span>
+                  {/* Active indicator bar */}
+                  {active && (
+                    <span
+                      className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full"
+                      style={{ background: "var(--accent)" }}
+                    />
+                  )}
+                  <span style={{ opacity: active ? 1 : 0.55 }}>{item.icon}</span>
                   <span>{item.label}</span>
                   {item.badge !== undefined && item.badge > 0 && (
                     <span
                       className="ml-auto text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center"
                       style={{
-                        background: "rgba(239,68,68,0.2)",
+                        background: "rgba(239,68,68,0.15)",
                         color: "var(--neon-red)",
                         fontFamily: "'JetBrains Mono', monospace",
                         fontSize: "0.6rem",
@@ -219,11 +237,11 @@ export default function Sidebar({ taskCount }: { taskCount?: number }) {
           </div>
         </nav>
 
-        {/* Bottom status */}
-        <div className="px-4 py-4" style={{ borderTop: "1px solid var(--border)" }}>
-          <div className="flex items-center gap-2 mb-1.5">
+        {/* Footer */}
+        <div className="px-5 py-4" style={{ borderTop: "1px solid var(--border)" }}>
+          <div className="flex items-center gap-2 mb-2">
             <span
-              className="w-2 h-2 rounded-full"
+              className="w-2 h-2 rounded-full shrink-0"
               style={{ background: "var(--neon-green)", boxShadow: "0 0 6px var(--neon-green)" }}
             />
             <span className="text-xs" style={{ color: "var(--text-muted)", fontSize: "0.65rem" }}>
@@ -235,8 +253,8 @@ export default function Sidebar({ taskCount }: { taskCount?: number }) {
             style={{
               color: "var(--text-muted)",
               fontFamily: "'JetBrains Mono', monospace",
-              fontSize: "0.5rem",
-              opacity: 0.6,
+              fontSize: "0.55rem",
+              opacity: 0.5,
             }}
           >
             Built {new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
@@ -244,15 +262,16 @@ export default function Sidebar({ taskCount }: { taskCount?: number }) {
         </div>
       </aside>
 
-      {/* Mobile bottom nav */}
+      {/* ─── Mobile Bottom Nav ─── */}
       <nav
         className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around"
         style={{
-          background: "rgba(13,12,12,0.95)",
+          background: "rgba(13,12,12,0.96)",
           backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
           borderTop: "1px solid var(--border)",
           paddingBottom: "env(safe-area-inset-bottom)",
-          height: "64px",
+          height: "68px",
         }}
       >
         {mobileItems.map((item) => {
@@ -267,10 +286,12 @@ export default function Sidebar({ taskCount }: { taskCount?: number }) {
               }}
             >
               {item.icon}
-              <span className="text-xs" style={{ fontSize: "0.55rem" }}>{item.label}</span>
+              <span className="text-xs" style={{ fontSize: "0.55rem", fontWeight: active ? 500 : 400 }}>
+                {item.label}
+              </span>
               {item.badge !== undefined && item.badge > 0 && (
                 <span
-                  className="absolute top-0.5 right-1 text-xs font-bold px-1 rounded-full min-w-[16px] text-center"
+                  className="absolute -top-0.5 right-0 text-xs font-bold px-1 rounded-full min-w-[16px] text-center"
                   style={{
                     background: "var(--neon-red)",
                     color: "var(--bg-primary)",
@@ -284,56 +305,59 @@ export default function Sidebar({ taskCount }: { taskCount?: number }) {
             </Link>
           );
         })}
-        {/* Hamburger for more */}
+        {/* More menu trigger */}
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
           className="flex flex-col items-center justify-center gap-1 px-3 py-2"
           style={{ color: mobileOpen ? "var(--accent)" : "var(--text-muted)" }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="3" y1="12" x2="21" y2="12" />
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <line x1="3" y1="18" x2="21" y2="18" />
+            <circle cx="12" cy="12" r="1" />
+            <circle cx="12" cy="5" r="1" />
+            <circle cx="12" cy="19" r="1" />
           </svg>
           <span className="text-xs" style={{ fontSize: "0.55rem" }}>More</span>
         </button>
       </nav>
 
-      {/* Mobile overflow menu */}
+      {/* ─── Mobile Overflow Menu ─── */}
       {mobileOpen && (
         <div
           className="md:hidden fixed inset-0 z-40"
           onClick={() => setMobileOpen(false)}
         >
           <div
-            className="absolute bottom-16 left-0 right-0 p-4"
+            className="absolute bottom-[68px] left-0 right-0 px-4 py-3"
             style={{
-              background: "rgba(19,17,17,0.98)",
+              background: "rgba(17,16,16,0.98)",
+              backdropFilter: "blur(20px)",
               borderTop: "1px solid var(--border)",
-              paddingBottom: "calc(env(safe-area-inset-bottom) + 16px)",
+              paddingBottom: "calc(env(safe-area-inset-bottom) + 12px)",
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {navItems
-              .filter((item) => !mobileItems.some((m) => m.href === item.href))
-              .map((item) => {
-                const active = isActive(item.href);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setMobileOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm"
-                    style={{
-                      color: active ? "var(--accent)" : "var(--text-secondary)",
-                      background: active ? "rgba(0,255,200,0.08)" : "transparent",
-                    }}
-                  >
-                    {item.icon}
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
+            <div className="space-y-1">
+              {navItems
+                .filter((item) => !mobileItems.some((m) => m.href === item.href))
+                .map((item) => {
+                  const active = isActive(item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setMobileOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm"
+                      style={{
+                        color: active ? "var(--accent)" : "var(--text-secondary)",
+                        background: active ? "rgba(0,255,200,0.06)" : "transparent",
+                      }}
+                    >
+                      {item.icon}
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+            </div>
           </div>
         </div>
       )}

@@ -21,6 +21,13 @@ const priorityColors: Record<string, string> = {
   low: "var(--text-muted)",
 };
 
+const priorityLabels: Record<string, string> = {
+  critical: "Critical",
+  high: "High",
+  medium: "Medium",
+  low: "Low",
+};
+
 function mapStatus(status: string): "active" | "planning" | "building" | "paused" | "completed" {
   if (status === "active") return "active";
   if (status === "paused") return "paused";
@@ -52,31 +59,65 @@ export default function ProjectsPage() {
     <div>
       <CommandBar />
 
-      <h1 className="text-lg font-semibold mb-6" style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
-        Projects
-        <span className="ml-2 text-xs font-normal" style={{ color: "var(--text-muted)" }}>{projects.length} total</span>
-      </h1>
+      <div className="flex items-center gap-3 mb-8">
+        <h1
+          className="text-lg font-semibold"
+          style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}
+        >
+          Projects
+        </h1>
+        <span
+          className="metric-value"
+          style={{ color: "var(--text-muted)", fontSize: "0.7rem" }}
+        >
+          {projects.length} total
+        </span>
+      </div>
 
       <div className="space-y-4">
         {projects.map((project) => (
-          <div key={project.id} className="glass-card p-5">
+          <div key={project.id} className="glass-card" style={{ padding: "24px" }}>
             <div className="flex items-start justify-between gap-4">
-              <div className="min-w-0">
-                <div className="flex items-center gap-2.5">
-                  <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{project.name}</span>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                    {project.name}
+                  </span>
                   {project.priority && (
                     <span
-                      className="w-2 h-2 rounded-full shrink-0"
-                      style={{
-                        background: priorityColors[project.priority] || "var(--text-muted)",
-                        boxShadow: project.priority === "critical" ? `0 0 6px ${priorityColors[project.priority]}` : "none",
-                      }}
-                      title={`${project.priority} priority`}
-                    />
+                      className="flex items-center gap-1.5"
+                    >
+                      <span
+                        className="w-2 h-2 rounded-full shrink-0"
+                        style={{
+                          background: priorityColors[project.priority] || "var(--text-muted)",
+                          boxShadow: project.priority === "critical"
+                            ? `0 0 6px ${priorityColors[project.priority]}`
+                            : "none",
+                        }}
+                      />
+                      <span
+                        className="metric-value"
+                        style={{
+                          color: priorityColors[project.priority],
+                          fontSize: "0.6rem",
+                        }}
+                      >
+                        {priorityLabels[project.priority]}
+                      </span>
+                    </span>
                   )}
                 </div>
-                <span className="text-xs block mt-1.5" style={{ color: "var(--text-muted)" }}>{project.description}</span>
-                <span className="text-xs block mt-1" style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.55rem" }}>
+                <span
+                  className="text-sm block leading-relaxed"
+                  style={{ color: "var(--text-muted)" }}
+                >
+                  {project.description}
+                </span>
+                <span
+                  className="metric-value block mt-2"
+                  style={{ color: "var(--text-muted)", fontSize: "0.6rem", opacity: 0.6 }}
+                >
                   {project.workspace}
                 </span>
               </div>
