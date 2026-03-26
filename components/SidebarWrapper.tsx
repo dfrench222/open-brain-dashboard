@@ -30,31 +30,23 @@ export default function SidebarWrapper({ children }: { children: React.ReactNode
   }
 
   return (
-    <div className="relative min-h-screen" style={{ zIndex: 1 }}>
+    <div className="min-h-screen">
       <Sidebar taskCount={taskCount} />
       <main
-        className="pb-24 md:pb-10"
-        style={{
-          marginLeft: "0",
-          minHeight: "100vh",
-        }}
+        className="min-h-screen pb-28 md:pb-12"
+        style={{ marginLeft: 0 }}
       >
         <div
-          className="mx-auto px-5 pt-6 md:pt-8 md:px-10 lg:px-12"
-          style={{
-            marginLeft: "0",
-            maxWidth: "1200px",
-          }}
+          className="max-w-[1100px] mx-auto px-5 py-8 md:px-10 md:py-10 lg:px-12"
         >
-          <style>{`
-            @media (min-width: 768px) {
-              main { margin-left: var(--sidebar-width) !important; }
-              main > div { margin-left: 0 !important; }
-            }
-          `}</style>
           {children}
         </div>
       </main>
+      <style>{`
+        @media (min-width: 768px) {
+          main { margin-left: var(--sidebar-w) !important; }
+        }
+      `}</style>
     </div>
   );
 }
