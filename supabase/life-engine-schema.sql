@@ -194,10 +194,16 @@ CREATE INDEX IF NOT EXISTS idx_synced_calendar_start ON synced_calendar_events(s
 -- ============================================================
 -- Updated_at triggers for tables with updated_at columns
 -- ============================================================
-CREATE TRIGGER IF NOT EXISTS set_updated_at_life_engine_briefings
-  BEFORE UPDATE ON life_engine_briefings
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER IF NOT EXISTS set_updated_at_synced_tasks
-  BEFORE UPDATE ON synced_tasks
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'set_updated_at_life_engine_briefings') THEN
+    CREATE TRIGGER set_updated_at_life_engine_briefings
+      BEFORE UPDATE ON life_engine_briefings
+      FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'set_updated_at_synced_tasks') THEN
+    CREATE TRIGGER set_updated_at_synced_tasks
+      BEFORE UPDATE ON synced_tasks
+      FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  END IF;
+END $$;
