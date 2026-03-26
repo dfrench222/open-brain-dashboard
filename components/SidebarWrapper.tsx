@@ -37,14 +37,18 @@ export default function SidebarWrapper({ children }: { children: React.ReactNode
         style={{ marginLeft: 0 }}
       >
         <div
-          className="px-6 py-8 md:px-10 md:py-10 lg:px-14"
+          className="px-6 py-8 md:px-12 md:py-10 lg:px-16 xl:px-20"
         >
           {children}
         </div>
       </main>
       <style>{`
         @media (min-width: 768px) {
-          main { margin-left: var(--sidebar-w) !important; }
+          main {
+            margin-left: var(--sidebar-w) !important;
+            max-width: calc(100vw - var(--sidebar-w)) !important;
+            overflow-x: hidden !important;
+          }
         }
       `}</style>
     </div>
