@@ -21,6 +21,7 @@ export default function Sidebar({ taskCount }: { taskCount?: number }) {
   const pathname = usePathname();
   const [date, setDate] = useState("");
   const [mobileMore, setMobileMore] = useState(false);
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
 
   useEffect(() => {
     setDate(
@@ -31,7 +32,20 @@ export default function Sidebar({ taskCount }: { taskCount?: number }) {
         year: "numeric",
       })
     );
+    // Load saved theme
+    const saved = localStorage.getItem("ob-theme") as "dark" | "light" | null;
+    if (saved) {
+      setTheme(saved);
+      document.documentElement.setAttribute("data-theme", saved);
+    }
   }, []);
+
+  const toggleTheme = () => {
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    document.documentElement.setAttribute("data-theme", next);
+    localStorage.setItem("ob-theme", next);
+  };
 
   const active = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
 
@@ -102,9 +116,26 @@ export default function Sidebar({ taskCount }: { taskCount?: number }) {
         </nav>
 
         <div className="px-6 py-5" style={{ borderTop: "1px solid var(--border)" }}>
-          <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--green)" }} />
-            <span style={{ color: "var(--text-faint)", fontSize: "12px" }}>All systems ok</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--green)" }} />
+              <span style={{ color: "var(--text-faint)", fontSize: "12px" }}>All systems ok</span>
+            </div>
+            <button
+              onClick={toggleTheme}
+              className="rounded-lg transition-colors duration-200"
+              style={{
+                padding: "6px 10px",
+                background: "var(--bg-hover)",
+                border: "1px solid var(--border)",
+                color: "var(--text-dim)",
+                fontSize: "13px",
+                cursor: "pointer",
+              }}
+              title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+            >
+              {theme === "dark" ? "☀" : "☾"}
+            </button>
           </div>
         </div>
       </aside>

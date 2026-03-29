@@ -25,6 +25,33 @@
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
 
+/* ─── Light Mode ─── */
+[data-theme="light"] {
+  --bg: #F8F6F4;
+  --bg-raised: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-hover: #F0EDEB;
+  --border: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.14);
+
+  --text-bright: #1A1715;
+  --text: #4A443D;
+  --text-dim: #8A8078;
+  --text-faint: #B5ADA5;
+
+  --accent: #009E7A;
+  --accent-soft: rgba(0, 158, 122, 0.06);
+  --accent-glow: rgba(0, 158, 122, 0.12);
+  --red: #DC3626;
+  --amber: #E07800;
+  --blue: #3B6FE0;
+  --green: #1BA865;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); }
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.22); }
+[data-theme="light"] ::selection { background: rgba(0,158,122,0.12); color: var(--text-bright); }
+
 *, *::before, *::after { box-sizing: border-box; }
 
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
