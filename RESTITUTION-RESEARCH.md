@@ -190,11 +190,11 @@ This is based on:
 | Donnie 2.0 Payments (2023 total) | `~/jumm-life/Evernote/EVERNOTE - DONNIE CRUSH/Donnie 2.0 Payments.md` |
 | Savings 2023 (monthly run rate) | `~/jumm-life/Evernote/EVERNOTE - DONNIE CRUSH/Savings - 2023.md` |
 | Tax Notes (restitution in QuickBooks) | `~/jumm-life/Evernote/EVERNOTE - DONNIE CRUSH/Tax Notes + Lotus Edge Closing.md` |
-| Comprehensive Profile v6 | `~/jumm-life/_Knowledge Base/df-second-brain-os/donnie_french_second_brain_v4/FINAL_deliverable_1_comprehensive_profile.md` |
-| Financial Dashboard v5 | `~/jumm-life/_Knowledge Base/df-second-brain-os/donnie_french_second_brain_v4/FINAL_deliverable_4_financial_dashboard.md` |
-| Timeline v5 | `~/jumm-life/_Knowledge Base/df-second-brain-os/donnie_french_second_brain_v4/FINAL_deliverable_3_timeline.md` |
-| Gap Analysis v5 | `~/jumm-life/_Knowledge Base/df-second-brain-os/donnie_french_second_brain_v4/FINAL_deliverable_7_gap_analysis.md` |
-| Open Brain Vision Doc | `~/jumm-life/_Knowledge Base/df-second-brain-os/planning/open-brain-vision-doc.md` |
+| Comprehensive Profile v6 | `~/jumm-life/_knowledge-base/df-second-brain-os/donnie_french_second_brain_v4/FINAL_deliverable_1_comprehensive_profile.md` |
+| Financial Dashboard v5 | `~/jumm-life/_knowledge-base/df-second-brain-os/donnie_french_second_brain_v4/FINAL_deliverable_4_financial_dashboard.md` |
+| Timeline v5 | `~/jumm-life/_knowledge-base/df-second-brain-os/donnie_french_second_brain_v4/FINAL_deliverable_3_timeline.md` |
+| Gap Analysis v5 | `~/jumm-life/_knowledge-base/df-second-brain-os/donnie_french_second_brain_v4/FINAL_deliverable_7_gap_analysis.md` |
+| Open Brain Vision Doc | `~/jumm-life/_knowledge-base/df-second-brain-os/planning/open-brain-vision-doc.md` |
 | Marcum LLP Email Thread | Gmail: "Jumm Life Media, LLC and Donnie French - Section 162(f)" (Feb--Apr 2024) |
 | Limitless 3/20/26 | `~/jumm-life/limitless-life-log/2026-03 March/2026-03-20 - Daily Lifelog Analysis.md` |
 | Limitless 1/25/26 | `~/jumm-life/limitless-life-log/2026-01 January/2026-01-25 - Daily Lifelog Analysis.md` |

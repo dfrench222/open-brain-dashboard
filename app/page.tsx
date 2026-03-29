@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 
 interface Quote { quote_text: string; source_title: string; source_author: string; }
-interface BriefingData { available: boolean; date: string; actionItems: string[]; followUps: string[]; decisions: string[]; unresolvedQuestions: string[]; message?: string; }
+interface BriefingData { available: boolean; date: string; actionItems: string[]; followUps: string[]; decisions: string[]; unresolvedQuestions: string[]; narrative?: string; title?: string; schedule?: { title?: string; start_time?: string; workspace?: string }[]; suggestions?: { directive?: string; estimated_time?: string; reason?: string }[]; insights?: string[]; message?: string; }
 interface BrainStats { thoughts: number | null; people: number | null; projects: number | null; quotes: number | null; }
 interface Task { id: string; title: string; status: string; list_name?: string; assignees?: { username?: string }[]; due_date?: string; external_url?: string; }
 
@@ -65,6 +65,15 @@ export default function OverviewPage() {
         </div>
       </div>
 
+      {/* ─── Narrative (if available) ─── */}
+      {briefing?.narrative && (
+        <div className="animate-in delay-1 card mb-8" style={{ borderLeft: "3px solid var(--accent)", borderRadius: "0 14px 14px 0" }}>
+          <p style={{ color: "var(--text)", fontSize: "14px", lineHeight: 1.7 }}>
+            {briefing.narrative}
+          </p>
+        </div>
+      )}
+
       {/* ─── Today's Briefing label ─── */}
       <div className="animate-in delay-2 flex items-center justify-between mb-5">
         <p className="label" style={{ fontSize: "11px" }}>Today&apos;s Briefing</p>
@@ -82,12 +91,31 @@ export default function OverviewPage() {
               <span style={{ fontSize: "16px", opacity: 0.4 }}>📅</span>
               <div>
                 <p style={{ color: "var(--text-bright)", fontSize: "15px", fontWeight: 500 }}>Today&apos;s Events</p>
-                <p className="mono" style={{ color: "var(--text-faint)", fontSize: "11px" }}>0 events</p>
+                <p className="mono" style={{ color: "var(--text-faint)", fontSize: "11px" }}>
+                  {briefing?.schedule?.length || 0} events
+                </p>
               </div>
             </div>
-            <p style={{ color: "var(--text-faint)", fontSize: "13px", padding: "20px 0" }}>
-              No events today
-            </p>
+            {briefing?.schedule && briefing.schedule.length > 0 ? (
+              <div className="space-y-2">
+                {briefing.schedule.map((evt, i) => (
+                  <div key={i} className="flex items-center justify-between py-2" style={{ borderBottom: "1px solid var(--border)" }}>
+                    <span style={{ fontSize: "13px", color: "var(--text-bright)" }}>
+                      {typeof evt === "string" ? evt : evt.title || "Event"}
+                    </span>
+                    <span className="mono shrink-0 ml-3" style={{ fontSize: "11px", color: "var(--text-faint)" }}>
+                      {typeof evt === "object" && evt.start_time
+                        ? new Date(evt.start_time).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
+                        : ""}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p style={{ color: "var(--text-faint)", fontSize: "13px", padding: "20px 0" }}>
+                No events today
+              </p>
+            )}
           </div>
 
           {/* Reminders / Follow-ups */}
