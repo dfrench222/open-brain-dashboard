@@ -65,12 +65,49 @@ export default function OverviewPage() {
         </div>
       </div>
 
-      {/* ─── Narrative (if available) ─── */}
+      {/* ─── Briefing Snapshot ─── */}
       {briefing?.narrative && (
-        <div className="animate-in delay-1 card mb-8" style={{ borderLeft: "3px solid var(--accent)", borderRadius: "0 14px 14px 0" }}>
-          <p style={{ color: "var(--text)", fontSize: "14px", lineHeight: 1.7 }}>
-            {briefing.narrative}
-          </p>
+        <div className="animate-in delay-1 mb-8">
+          <div
+            className="rounded-2xl overflow-hidden"
+            style={{ border: "1px solid var(--border)" }}
+          >
+            {/* Header bar */}
+            <div
+              className="px-6 py-3 flex items-center justify-between"
+              style={{ background: "var(--accent-soft)", borderBottom: "1px solid var(--border)" }}
+            >
+              <div className="flex items-center gap-2.5">
+                <span style={{ fontSize: "14px" }}>⚡</span>
+                <span style={{ color: "var(--accent)", fontSize: "12px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                  {briefing.title || "Daily Snapshot"}
+                </span>
+              </div>
+              <span className="mono" style={{ color: "var(--text-faint)", fontSize: "11px" }}>
+                {new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
+              </span>
+            </div>
+
+            {/* Content — split sentences into scannable items */}
+            <div className="px-6 py-5" style={{ background: "var(--bg-card)" }}>
+              <div className="space-y-3">
+                {briefing.narrative.split(/\.\s+/).filter(s => s.trim().length > 5).map((sentence, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <span className="w-1.5 h-1.5 rounded-full mt-2 shrink-0" style={{
+                      background: sentence.toLowerCase().includes("overdue") || sentence.toLowerCase().includes("urgent")
+                        ? "var(--red)"
+                        : sentence.toLowerCase().includes("penny") || sentence.toLowerCase().includes("family") || sentence.toLowerCase().includes("caitlin")
+                        ? "var(--amber)"
+                        : "var(--text-faint)"
+                    }} />
+                    <p style={{ color: "var(--text-bright)", fontSize: "14px", lineHeight: 1.55 }}>
+                      {sentence.trim().replace(/\.$/, "")}.
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
