@@ -21,7 +21,8 @@ export default function Sidebar({ taskCount }: { taskCount?: number }) {
   const pathname = usePathname();
   const [date, setDate] = useState("");
   const [mobileMore, setMobileMore] = useState(false);
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [theme, setTheme] = useState<string>("dark");
+  const [engineStatus, setEngineStatus] = useState<{ fresh: boolean; lastUpdated: string } | null>(null);
 
   useEffect(() => {
     setDate(
@@ -33,15 +34,31 @@ export default function Sidebar({ taskCount }: { taskCount?: number }) {
       })
     );
     // Load saved theme
-    const saved = localStorage.getItem("ob-theme") as "dark" | "light" | null;
+    const saved = localStorage.getItem("ob-theme");
     if (saved) {
       setTheme(saved);
       document.documentElement.setAttribute("data-theme", saved);
     }
+
+    // Fetch engine status
+    fetch("/api/engine-status").then(r => r.json()).then(d => {
+      if (d.last_cycle) {
+        const completed = d.last_cycle.completed_at;
+        const hoursAgo = completed ? (Date.now() - new Date(completed).getTime()) / (1000 * 60 * 60) : 999;
+        setEngineStatus({
+          fresh: hoursAgo < 6,
+          lastUpdated: completed ? new Date(completed).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "America/New_York" }) : "unknown",
+        });
+      }
+    }).catch(() => {});
   }, []);
 
+  const THEMES = ["dark", "neon", "terminal", "light"];
+  const THEME_ICONS: Record<string, string> = { dark: "☾", neon: "⚡", terminal: "▶", light: "☀" };
+
   const toggleTheme = () => {
-    const next = theme === "dark" ? "light" : "dark";
+    const idx = THEMES.indexOf(theme);
+    const next = THEMES[(idx + 1) % THEMES.length];
     setTheme(next);
     document.documentElement.setAttribute("data-theme", next);
     localStorage.setItem("ob-theme", next);
@@ -116,11 +133,26 @@ export default function Sidebar({ taskCount }: { taskCount?: number }) {
         </nav>
 
         <div className="px-6 py-5" style={{ borderTop: "1px solid var(--border)" }}>
+          {/* Health + Last Updated */}
+          <div className="flex items-center gap-2 mb-3">
+            <span
+              className="w-1.5 h-1.5 rounded-full"
+              style={{ background: engineStatus?.fresh ? "var(--green)" : "var(--amber)" }}
+            />
+            <span style={{ color: "var(--text-faint)", fontSize: "12px" }}>
+              {engineStatus
+                ? engineStatus.fresh
+                  ? `Updated ${engineStatus.lastUpdated}`
+                  : `Stale — last ${engineStatus.lastUpdated}`
+                : "Checking..."}
+            </span>
+          </div>
+
+          {/* Theme toggle */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--green)" }} />
-              <span style={{ color: "var(--text-faint)", fontSize: "12px" }}>All systems ok</span>
-            </div>
+            <span style={{ color: "var(--text-faint)", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              {theme}
+            </span>
             <button
               onClick={toggleTheme}
               className="rounded-lg transition-colors duration-200"
@@ -132,9 +164,9 @@ export default function Sidebar({ taskCount }: { taskCount?: number }) {
                 fontSize: "13px",
                 cursor: "pointer",
               }}
-              title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+              title={`Switch theme (${THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length]})`}
             >
-              {theme === "dark" ? "☀" : "☾"}
+              {THEME_ICONS[theme] || "☾"}
             </button>
           </div>
         </div>

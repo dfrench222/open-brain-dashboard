@@ -5,10 +5,17 @@ export async function GET() {
   try {
     const supabase = getServiceSupabase();
 
+    // Get all events for today (midnight to midnight ET)
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const todayEnd = new Date(todayStart);
+    todayEnd.setDate(todayEnd.getDate() + 1);
+
     const { data: events, error } = await supabase
       .from("synced_calendar_events")
       .select("*")
-      .gte("start_time", new Date().toISOString())
+      .gte("start_time", todayStart.toISOString())
+      .lt("start_time", todayEnd.toISOString())
       .order("start_time", { ascending: true });
 
     if (error) throw error;

@@ -1,304 +1,518 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import { PanelErrorBoundary } from "@/components/PanelErrorBoundary";
+import { LoadingSkeleton } from "@/components/LoadingSkeleton";
+import { HeroStats } from "@/components/HeroStats";
+import { BriefingNarrative } from "@/components/BriefingNarrative";
+import { Schedule } from "@/components/Schedule";
+import { Suggestions } from "@/components/Suggestions";
+import { SlackTier1 } from "@/components/SlackTier1";
+import { logAction } from "@/lib/logAction";
 
-interface Quote { quote_text: string; source_title: string; source_author: string; }
-interface BriefingData { available: boolean; date: string; actionItems: string[]; followUps: string[]; decisions: string[]; unresolvedQuestions: string[]; narrative?: string; title?: string; schedule?: { title?: string; start_time?: string; workspace?: string }[]; suggestions?: { directive?: string; estimated_time?: string; reason?: string }[]; insights?: string[]; message?: string; }
-interface BrainStats { thoughts: number | null; people: number | null; projects: number | null; quotes: number | null; }
-interface Task { id: string; title: string; status: string; list_name?: string; assignees?: { username?: string }[]; due_date?: string; external_url?: string; }
+interface Quote {
+  quote_text: string;
+  source_title: string;
+  source_author: string;
+}
+
+interface BriefingData {
+  available: boolean;
+  date: string;
+  actionItems: (string | { title: string; why?: string; source?: string; priority?: string })[];
+  followUps: (string | { title: string; why?: string; overdue?: boolean })[];
+  decisions: (string | { decision: string; context?: string })[];
+  narrative?: string;
+  title?: string;
+  schedule?: { title?: string; start_time?: string; end_time?: string; workspace?: string; attendees?: { email: string; name: string }[]; ai_prep_notes?: string; id?: string }[];
+  suggestions?: { directive?: string; time_estimate?: string; reason?: string; priority?: string; source?: string }[];
+  insights?: string[];
+  metadata?: { stats?: { meetings_today?: number; focus_hours_available?: number; overdue_tasks_clickup?: number; tier1_messages?: number } };
+  message?: string;
+}
+
+interface CalendarEvent {
+  id: string;
+  title: string;
+  start_time: string;
+  end_time: string;
+  workspace: string;
+  attendees?: { email: string; name: string }[];
+  ai_prep_notes?: string;
+}
+
+interface SlackMsg {
+  id: string;
+  external_id: string;
+  channel_name: string;
+  sender_name: string;
+  preview: string;
+  timestamp: string;
+  workspace: string;
+  source: string;
+}
 
 export default function OverviewPage() {
   const [quote, setQuote] = useState<Quote | null>(null);
   const [briefing, setBriefing] = useState<BriefingData | null>(null);
-  const [stats, setStats] = useState<BrainStats | null>(null);
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [calendar, setCalendar] = useState<CalendarEvent[]>([]);
+  const [slackTier1, setSlackTier1] = useState<SlackMsg[]>([]);
+  const [loading, setLoading] = useState(true);
   const [greeting, setGreeting] = useState("");
+  const [dismissedSlack, setDismissedSlack] = useState<string[]>([]);
 
   useEffect(() => {
     const h = new Date().getHours();
-    setGreeting(h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening");
+    setGreeting(
+      h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening"
+    );
 
-    fetch("/api/quotes").then(r => r.json()).then(d => { if (d.quote_text) setQuote(d); }).catch(() => {});
-    fetch("/api/briefing").then(r => r.json()).then(d => setBriefing(d)).catch(() => {});
-    fetch("/api/brain-stats").then(r => r.json()).then(d => { if (!d.error) setStats(d); }).catch(() => {});
-    fetch("/api/clickup").then(r => r.json()).then(d => {
-      if (d.tasks) setTasks(d.tasks.filter((t: Task) => t.status !== "Closed").slice(0, 12));
-    }).catch(() => {});
+    // Load dismissed items from localStorage
+    try {
+      const d = JSON.parse(localStorage.getItem("ob-dismissed-slack") || "[]");
+      setDismissedSlack(d);
+    } catch {
+      /* ignore */
+    }
+
+    // Fetch all data in parallel
+    Promise.all([
+      fetch("/api/quotes").then((r) => r.json()).catch(() => null),
+      fetch("/api/briefing").then((r) => r.json()).catch(() => null),
+      fetch("/api/calendar").then((r) => r.json()).catch(() => ({ events: [] })),
+      fetch("/api/slack-tier1").then((r) => r.json()).catch(() => ({ messages: [] })),
+    ]).then(([quoteData, briefingData, calendarData, slackData]) => {
+      if (quoteData?.quote_text) setQuote(quoteData);
+      if (briefingData) setBriefing(briefingData);
+      if (calendarData?.events) setCalendar(calendarData.events);
+      if (slackData?.messages) setSlackTier1(slackData.messages);
+      setLoading(false);
+    });
   }, []);
 
-  const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+  const handleDismissSlack = useCallback((id: string) => {
+    setDismissedSlack((prev) => {
+      const next = [...prev, id];
+      localStorage.setItem("ob-dismissed-slack", JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
+  const handleActionDone = useCallback(
+    (item: string, index: number) => {
+      logAction("done", "briefing_action_items", `action-${index}`, {
+        item,
+        source: "overview",
+      });
+    },
+    []
+  );
+
+  const today = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+
+  // Compute stats from briefing metadata or calendar
+  const stats = briefing?.metadata?.stats;
+  const meetingsToday = stats?.meetings_today ?? calendar.length;
+  const focusHours = stats?.focus_hours_available ?? 0;
+  const actionCount =
+    (briefing?.actionItems?.length || 0) +
+    (briefing?.followUps?.length || 0);
+  const hasOverdue = stats?.overdue_tasks_clickup
+    ? stats.overdue_tasks_clickup > 0
+    : (briefing?.followUps?.length || 0) > 0;
+
+  const filteredSlack = slackTier1.filter(
+    (m) => !dismissedSlack.includes(m.id || m.external_id)
+  );
+
+  if (loading) {
+    return (
+      <div>
+        <div className="animate-in mb-10">
+          <h1
+            style={{
+              fontSize: "clamp(26px, 3.5vw, 36px)",
+              fontWeight: 400,
+              color: "var(--text-bright)",
+              fontStyle: "italic",
+              fontFamily: "Georgia, 'Times New Roman', serif",
+            }}
+          >
+            Loading briefing...
+          </h1>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          <LoadingSkeleton lines={1} height="100px" />
+          <LoadingSkeleton lines={4} />
+          <LoadingSkeleton lines={3} />
+          <LoadingSkeleton lines={5} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
       {/* ─── Greeting ─── */}
-      <div className="animate-in mb-10">
-        <h1 style={{ fontSize: "clamp(26px, 3.5vw, 36px)", fontWeight: 400, color: "var(--text-bright)", fontStyle: "italic", fontFamily: "Georgia, 'Times New Roman', serif" }}>
+      <div className="animate-in" style={{ marginBottom: "32px" }}>
+        <h1
+          style={{
+            fontSize: "clamp(26px, 3.5vw, 36px)",
+            fontWeight: 400,
+            color: "var(--text-bright)",
+            fontStyle: "italic",
+            fontFamily: "Georgia, 'Times New Roman', serif",
+          }}
+        >
           {greeting}, Donnie
         </h1>
-        <p className="mt-1" style={{ color: "var(--text-faint)", fontSize: "14px" }}>
-          Open Brain &middot; Command Center
+        <p style={{ color: "var(--text-faint)", fontSize: "14px", marginTop: "4px" }}>
+          {today}
         </p>
       </div>
 
-      {/* ─── North Star (compact banner) ─── */}
-      <div
-        className="animate-in delay-1 rounded-xl px-8 py-6 mb-10"
-        style={{ background: "var(--bg-raised)", border: "1px solid var(--border)" }}
-      >
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <p className="label mb-2" style={{ color: "var(--text-faint)", fontSize: "10px" }}>North Star Principle</p>
-            <p style={{ color: "var(--accent)", fontSize: "18px", fontWeight: 500, lineHeight: 1.4 }}>
-              &ldquo;Whatever you want in life &mdash; give it away first.&rdquo;
-            </p>
-          </div>
-          {quote && (
-            <div style={{ borderLeft: "1px solid var(--border)", paddingLeft: "20px", maxWidth: "400px" }}>
-              <p className="italic" style={{ color: "var(--text-dim)", fontSize: "13px", lineHeight: 1.6 }}>
-                &ldquo;{quote.quote_text}&rdquo;
-              </p>
-              <p className="mono mt-1" style={{ color: "var(--text-faint)", fontSize: "11px" }}>
-                — {quote.source_author}
-              </p>
-            </div>
-          )}
+      {/* ─── Hero Stats ─── */}
+      <PanelErrorBoundary label="Hero Stats">
+        <div className="animate-in delay-1" style={{ marginBottom: "20px" }}>
+          <HeroStats
+            meetingsToday={meetingsToday}
+            focusHours={focusHours}
+            actionCount={actionCount}
+            hasOverdue={hasOverdue}
+          />
         </div>
+      </PanelErrorBoundary>
+
+      {/* ─── Narrative ─── */}
+      <PanelErrorBoundary label="Briefing">
+        <div className="animate-in delay-2" style={{ marginBottom: "20px" }}>
+          <BriefingNarrative
+            narrative={briefing?.narrative || "No briefing available — run /life-engine to generate"}
+            date={briefing?.date || today}
+          />
+        </div>
+      </PanelErrorBoundary>
+
+      {/* ─── Schedule ─── */}
+      <PanelErrorBoundary label="Schedule">
+        <div className="animate-in delay-3" style={{ marginBottom: "20px" }}>
+          <Schedule events={calendar} />
+        </div>
+      </PanelErrorBoundary>
+
+      {/* ─── Suggestions ─── */}
+      <PanelErrorBoundary label="Suggestions">
+        <div className="animate-in delay-4" style={{ marginBottom: "20px" }}>
+          <Suggestions suggestions={(briefing?.suggestions || []) as { directive: string; time_estimate: string; reason: string; priority: string; source: string }[]} />
+        </div>
+      </PanelErrorBoundary>
+
+      {/* ─── Action Items + Follow-Ups (2 column) ─── */}
+      <div
+        className="animate-in delay-5 grid grid-cols-1 md:grid-cols-2 gap-4"
+        style={{
+          marginBottom: "20px",
+        }}
+      >
+        <PanelErrorBoundary label="Action Items">
+          <div className="card" style={{ padding: "20px 24px" }}>
+            <div className="label" style={{ marginBottom: "16px" }}>
+              Action Items
+            </div>
+            {briefing?.actionItems && briefing.actionItems.length > 0 ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                {briefing.actionItems.map((rawItem, i) => {
+                  let item = rawItem;
+                  // Handle stringified JSON objects
+                  if (typeof item === "string") {
+                    try { item = JSON.parse(item); } catch { /* keep as string */ }
+                  }
+                  const title = typeof item === "string" ? item : (item as { title?: string; task?: string }).title || (item as { task?: string }).task || JSON.stringify(item);
+                  const why = typeof item === "string" ? null : (item as { why?: string; reason?: string }).why || (item as { reason?: string }).reason;
+
+                  return (
+                    <div
+                      key={i}
+                      style={{
+                        padding: "10px 12px",
+                        borderRadius: "8px",
+                        background: "var(--bg-raised)",
+                        border: "1px solid var(--border)",
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: "13px",
+                          fontWeight: 600,
+                          color: "var(--text-bright)",
+                          lineHeight: 1.4,
+                          marginBottom: why ? "4px" : 0,
+                        }}
+                      >
+                        {title}
+                      </div>
+                      {why && (
+                        <div
+                          style={{
+                            fontSize: "12px",
+                            color: "var(--text-dim)",
+                            lineHeight: 1.4,
+                            marginBottom: "8px",
+                          }}
+                        >
+                          {why}
+                        </div>
+                      )}
+                      <div style={{ display: "flex", gap: "4px" }}>
+                        <button
+                          onClick={() => handleActionDone(title, i)}
+                          style={{
+                            fontSize: "10px",
+                            fontWeight: 700,
+                            textTransform: "uppercase",
+                            letterSpacing: "0.06em",
+                            padding: "3px 10px",
+                            borderRadius: "5px",
+                            background: "rgba(50,213,131,0.1)",
+                            color: "var(--green)",
+                            border: "1px solid rgba(50,213,131,0.2)",
+                            cursor: "pointer",
+                          }}
+                        >
+                          Done
+                        </button>
+                        <button
+                          style={{
+                            fontSize: "10px",
+                            fontWeight: 700,
+                            textTransform: "uppercase",
+                            letterSpacing: "0.06em",
+                            padding: "3px 10px",
+                            borderRadius: "5px",
+                            background: "var(--bg-hover)",
+                            color: "var(--text-dim)",
+                            border: "1px solid var(--border)",
+                            cursor: "pointer",
+                          }}
+                        >
+                          Defer
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div style={{ fontSize: "14px", color: "var(--text-dim)" }}>
+                No action items in today&apos;s briefing
+              </div>
+            )}
+          </div>
+        </PanelErrorBoundary>
+
+        <PanelErrorBoundary label="Follow-Ups">
+          <div className="card" style={{ padding: "20px 24px" }}>
+            <div className="label" style={{ marginBottom: "16px" }}>
+              Follow-Ups
+            </div>
+            {briefing?.followUps && briefing.followUps.length > 0 ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                {briefing.followUps.map((rawItem, i) => {
+                  let item = rawItem;
+                  if (typeof item === "string") {
+                    try { item = JSON.parse(item); } catch { /* keep as string */ }
+                  }
+                  const title = typeof item === "string" ? item : (item as { title?: string; task?: string }).title || (item as { task?: string }).task || JSON.stringify(item);
+                  const why = typeof item === "string" ? null : (item as { why?: string; reason?: string }).why || (item as { reason?: string }).reason;
+                  const overdue = typeof item !== "string" && (item as { overdue?: boolean }).overdue;
+
+                  return (
+                    <div
+                      key={i}
+                      style={{
+                        padding: "10px 12px",
+                        borderRadius: "8px",
+                        background: overdue
+                          ? "rgba(240,68,56,0.04)"
+                          : "var(--bg-raised)",
+                        border: overdue
+                          ? "1px solid rgba(240,68,56,0.15)"
+                          : "1px solid var(--border)",
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        {overdue && (
+                          <span
+                            style={{
+                              width: "6px",
+                              height: "6px",
+                              borderRadius: "50%",
+                              background: "var(--red)",
+                              flexShrink: 0,
+                            }}
+                          />
+                        )}
+                        <span
+                          style={{
+                            fontSize: "13px",
+                            fontWeight: 600,
+                            color: "var(--text-bright)",
+                            lineHeight: 1.4,
+                          }}
+                        >
+                          {title}
+                        </span>
+                      </div>
+                      {why && (
+                        <div
+                          style={{
+                            fontSize: "12px",
+                            color: "var(--text-dim)",
+                            lineHeight: 1.4,
+                            marginTop: "4px",
+                          }}
+                        >
+                          {why}
+                        </div>
+                      )}
+                      <div style={{ display: "flex", gap: "4px", marginTop: "8px" }}>
+                        <button
+                          onClick={() => {
+                            logAction("done", "briefing_follow_ups", `followup-${i}`, { item: title });
+                          }}
+                          style={{
+                            fontSize: "10px",
+                            fontWeight: 700,
+                            textTransform: "uppercase",
+                            letterSpacing: "0.06em",
+                            padding: "3px 10px",
+                            borderRadius: "5px",
+                            background: "rgba(50,213,131,0.1)",
+                            color: "var(--green)",
+                            border: "1px solid rgba(50,213,131,0.2)",
+                            cursor: "pointer",
+                          }}
+                        >
+                          Done
+                        </button>
+                        <button
+                          style={{
+                            fontSize: "10px",
+                            fontWeight: 700,
+                            textTransform: "uppercase",
+                            letterSpacing: "0.06em",
+                            padding: "3px 10px",
+                            borderRadius: "5px",
+                            background: "rgba(247,144,9,0.1)",
+                            color: "var(--amber)",
+                            border: "1px solid rgba(247,144,9,0.2)",
+                            cursor: "pointer",
+                          }}
+                        >
+                          Nudge
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div style={{ fontSize: "14px", color: "var(--text-dim)" }}>
+                No follow-ups pending
+              </div>
+            )}
+          </div>
+        </PanelErrorBoundary>
       </div>
 
-      {/* ─── Briefing Snapshot ─── */}
-      {briefing?.narrative && (
-        <div className="animate-in delay-1 mb-8">
-          <div
-            className="rounded-2xl overflow-hidden"
-            style={{ border: "1px solid var(--border)" }}
-          >
-            {/* Header bar */}
-            <div
-              className="px-6 py-3 flex items-center justify-between"
-              style={{ background: "var(--accent-soft)", borderBottom: "1px solid var(--border)" }}
-            >
-              <div className="flex items-center gap-2.5">
-                <span style={{ fontSize: "14px" }}>⚡</span>
-                <span style={{ color: "var(--accent)", fontSize: "12px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                  {briefing.title || "Daily Snapshot"}
-                </span>
+      {/* ─── Decisions Yesterday ─── */}
+      {briefing?.decisions && briefing.decisions.length > 0 && (
+        <PanelErrorBoundary label="Decisions">
+          <div className="animate-in" style={{ marginBottom: "20px" }}>
+            <div className="card" style={{ padding: "20px 24px" }}>
+              <div className="label" style={{ marginBottom: "12px" }}>
+                Decisions Made Yesterday
               </div>
-              <span className="mono" style={{ color: "var(--text-faint)", fontSize: "11px" }}>
-                {new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
-              </span>
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                {briefing.decisions.map((d, i) => {
+                  const text = typeof d === "string" ? d : d.decision;
+                  const ctx = typeof d === "string" ? null : d.context;
+                  return (
+                    <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
+                      <span
+                        style={{
+                          width: "6px",
+                          height: "6px",
+                          borderRadius: "50%",
+                          background: "var(--accent)",
+                          flexShrink: 0,
+                          marginTop: "7px",
+                        }}
+                      />
+                      <div>
+                        <span style={{ fontSize: "14px", color: "var(--text)", lineHeight: 1.5 }}>
+                          {text}
+                        </span>
+                        {ctx && (
+                          <span style={{ fontSize: "12px", color: "var(--text-faint)", display: "block" }}>
+                            {ctx}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
+          </div>
+        </PanelErrorBoundary>
+      )}
 
-            {/* Content — split sentences into scannable items */}
-            <div className="px-6 py-5" style={{ background: "var(--bg-card)" }}>
-              <div className="space-y-3">
-                {briefing.narrative.split(/\.\s+/).filter(s => s.trim().length > 5).map((sentence, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <span className="w-1.5 h-1.5 rounded-full mt-2 shrink-0" style={{
-                      background: sentence.toLowerCase().includes("overdue") || sentence.toLowerCase().includes("urgent")
-                        ? "var(--red)"
-                        : sentence.toLowerCase().includes("penny") || sentence.toLowerCase().includes("family") || sentence.toLowerCase().includes("caitlin")
-                        ? "var(--amber)"
-                        : "var(--text-faint)"
-                    }} />
-                    <p style={{ color: "var(--text-bright)", fontSize: "14px", lineHeight: 1.55 }}>
-                      {sentence.trim().replace(/\.$/, "")}.
-                    </p>
-                  </div>
-                ))}
-              </div>
+      {/* ─── Slack Tier 1 ─── */}
+      <PanelErrorBoundary label="Slack">
+        <div className="animate-in" style={{ marginBottom: "20px" }}>
+          <SlackTier1 messages={filteredSlack} onDismiss={handleDismissSlack} />
+        </div>
+      </PanelErrorBoundary>
+
+      {/* ─── Daily Quote ─── */}
+      {quote && (
+        <div className="animate-in" style={{ marginBottom: "20px" }}>
+          <div
+            className="card"
+            style={{
+              padding: "20px 24px",
+              borderLeft: "3px solid var(--text-faint)",
+            }}
+          >
+            <div
+              style={{
+                fontSize: "15px",
+                fontStyle: "italic",
+                color: "var(--text)",
+                lineHeight: 1.6,
+                fontFamily: "Georgia, 'Times New Roman', serif",
+              }}
+            >
+              &ldquo;{quote.quote_text}&rdquo;
+            </div>
+            <div
+              style={{
+                fontSize: "12px",
+                color: "var(--text-dim)",
+                marginTop: "8px",
+              }}
+            >
+              — {quote.source_author}
+              {quote.source_title && `, ${quote.source_title}`}
             </div>
           </div>
         </div>
       )}
-
-      {/* ─── Today's Briefing label ─── */}
-      <div className="animate-in delay-2 flex items-center justify-between mb-5">
-        <p className="label" style={{ fontSize: "11px" }}>Today&apos;s Briefing</p>
-        <p className="mono" style={{ color: "var(--text-faint)", fontSize: "11px" }}>{today}</p>
-      </div>
-
-      {/* ─── Two-column layout (like Brixton's) ─── */}
-      <div className="animate-in delay-3 grid grid-cols-1 lg:grid-cols-5 gap-5 mb-10">
-
-        {/* Left column: Events + Briefing (2/5) */}
-        <div className="lg:col-span-2 space-y-5">
-          {/* Today's Events */}
-          <div className="card">
-            <div className="flex items-center gap-2.5 mb-4">
-              <span style={{ fontSize: "16px", opacity: 0.4 }}>📅</span>
-              <div>
-                <p style={{ color: "var(--text-bright)", fontSize: "15px", fontWeight: 500 }}>Today&apos;s Events</p>
-                <p className="mono" style={{ color: "var(--text-faint)", fontSize: "11px" }}>
-                  {briefing?.schedule?.length || 0} events
-                </p>
-              </div>
-            </div>
-            {briefing?.schedule && briefing.schedule.length > 0 ? (
-              <div className="space-y-2">
-                {briefing.schedule.map((evt, i) => (
-                  <div key={i} className="flex items-center justify-between py-2" style={{ borderBottom: "1px solid var(--border)" }}>
-                    <span style={{ fontSize: "13px", color: "var(--text-bright)" }}>
-                      {typeof evt === "string" ? evt : evt.title || "Event"}
-                    </span>
-                    <span className="mono shrink-0 ml-3" style={{ fontSize: "11px", color: "var(--text-faint)" }}>
-                      {typeof evt === "object" && evt.start_time
-                        ? new Date(evt.start_time).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
-                        : ""}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p style={{ color: "var(--text-faint)", fontSize: "13px", padding: "20px 0" }}>
-                No events today
-              </p>
-            )}
-          </div>
-
-          {/* Reminders / Follow-ups */}
-          <div className="card">
-            <div className="flex items-center gap-2.5 mb-4">
-              <span style={{ fontSize: "16px", opacity: 0.4 }}>🔔</span>
-              <div>
-                <p style={{ color: "var(--text-bright)", fontSize: "15px", fontWeight: 500 }}>Reminders</p>
-                <p className="mono" style={{ color: "var(--text-faint)", fontSize: "11px" }}>Next 48 hours</p>
-              </div>
-            </div>
-            {briefing?.available && briefing.followUps.length > 0 ? (
-              <div className="space-y-3">
-                {briefing.followUps.slice(0, 4).map((item, i) => (
-                  <div key={i} className="flex items-start gap-3 py-2" style={{ borderBottom: "1px solid var(--border)" }}>
-                    <span className="w-1.5 h-1.5 rounded-full mt-2 shrink-0" style={{ background: "var(--amber)" }} />
-                    <span style={{ fontSize: "13px", color: "var(--text)", lineHeight: 1.5 }}>{item.replace(/\*\*/g, "")}</span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p style={{ color: "var(--text-faint)", fontSize: "13px", padding: "20px 0" }}>
-                Nothing due in the next 48 hours
-              </p>
-            )}
-          </div>
-
-          {/* Daily Quote */}
-          {quote && (
-            <div className="card" style={{ borderColor: "var(--accent-glow)" }}>
-              <p className="label mb-3" style={{ color: "var(--text-faint)", fontSize: "10px" }}>Daily Wisdom</p>
-              <p className="italic" style={{ color: "var(--text)", fontSize: "14px", lineHeight: 1.7 }}>
-                &ldquo;{quote.quote_text}&rdquo;
-              </p>
-              <p className="mono mt-3" style={{ color: "var(--text-faint)", fontSize: "11px" }}>
-                — {quote.source_author} / {quote.source_title}
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Right column: Priorities / Tasks (3/5) */}
-        <div className="lg:col-span-3">
-          <div className="card" style={{ padding: 0 }}>
-            {/* Header */}
-            <div className="flex items-center justify-between px-7 py-5" style={{ borderBottom: "1px solid var(--border)" }}>
-              <div className="flex items-center gap-2.5">
-                <span style={{ fontSize: "16px", opacity: 0.4 }}>◎</span>
-                <p style={{ color: "var(--text-bright)", fontSize: "15px", fontWeight: 500 }}>Priorities</p>
-              </div>
-              <a href="/action" style={{ color: "var(--red)", fontSize: "13px", fontWeight: 500 }}>
-                View all →
-              </a>
-            </div>
-
-            {/* Tab bar */}
-            <div className="flex px-7 pt-4 pb-2 gap-6" style={{ borderBottom: "1px solid var(--border)" }}>
-              <button className="pb-2" style={{ color: "var(--text-bright)", fontSize: "13px", fontWeight: 500, borderBottom: "2px solid var(--text-bright)" }}>
-                Tasks <span className="mono ml-1" style={{ color: "var(--text-dim)", fontSize: "12px" }}>{tasks.length}</span>
-              </button>
-              <button className="pb-2" style={{ color: "var(--text-faint)", fontSize: "13px" }}>
-                Commitments <span className="mono ml-1" style={{ fontSize: "12px" }}>{briefing?.available ? briefing.actionItems.length : 0}</span>
-              </button>
-            </div>
-
-            {/* Task list */}
-            <div className="divide-y" style={{ borderColor: "var(--border)" }}>
-              {tasks.length > 0 ? tasks.map((task) => (
-                <div
-                  key={task.id}
-                  className="flex items-start justify-between px-7 py-4 transition-colors"
-                  style={{ cursor: "pointer" }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-hover)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
-                >
-                  <div className="flex items-start gap-3 min-w-0 flex-1">
-                    <span className="w-2 h-2 rounded-full mt-2 shrink-0" style={{
-                      background: task.status === "Overdue" || (task.due_date && new Date(task.due_date) < new Date()) ? "var(--red)" : "var(--text-faint)"
-                    }} />
-                    <div className="min-w-0">
-                      <p className="truncate" style={{ color: "var(--text-bright)", fontSize: "14px", lineHeight: 1.4 }}>
-                        {task.title}
-                      </p>
-                      <p className="truncate mt-0.5" style={{ color: "var(--text-faint)", fontSize: "12px" }}>
-                        {task.assignees?.[0]?.username || "Unassigned"}
-                        {task.status && task.status !== "Open" && (
-                          <span className="ml-2" style={{ color: "var(--red)" }}>{task.status}</span>
-                        )}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 shrink-0 ml-4">
-                    {task.list_name && (
-                      <span
-                        className="mono rounded-md px-2 py-0.5 hidden md:inline-block"
-                        style={{ background: "var(--bg-raised)", color: "var(--text-dim)", fontSize: "11px", border: "1px solid var(--border)" }}
-                      >
-                        {task.list_name}
-                      </span>
-                    )}
-                    {task.external_url && (
-                      <a
-                        href={task.external_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        style={{ color: "var(--text-faint)", fontSize: "14px" }}
-                        title="Open in ClickUp"
-                      >
-                        ↗
-                      </a>
-                    )}
-                  </div>
-                </div>
-              )) : (
-                <div className="px-7 py-12 text-center">
-                  <p style={{ color: "var(--text-faint)", fontSize: "14px" }}>No active tasks</p>
-                  <p className="mt-1" style={{ color: "var(--text-faint)", fontSize: "12px" }}>Run the Life Engine to sync your ClickUp tasks</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ─── System Status ─── */}
-      <div className="animate-in delay-4">
-        <p className="label mb-4" style={{ fontSize: "11px" }}>System Status</p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Stat label="Active Tasks" value={tasks.length || null} />
-          <Stat label="People" value={stats?.people} />
-          <Stat label="Projects" value={stats?.projects} />
-          <Stat label="KT Quotes" value={stats?.quotes} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: number | null | undefined }) {
-  return (
-    <div className="card" style={{ padding: "20px 24px" }}>
-      <p className="label mb-2">{label}</p>
-      <p className="metric" style={{ fontSize: "22px", color: value ? "var(--text-bright)" : "var(--text-faint)" }}>
-        {value !== null && value !== undefined ? value : "—"}
-      </p>
     </div>
   );
 }
